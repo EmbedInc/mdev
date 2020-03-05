@@ -86,7 +86,7 @@ type
   mdev_t = record                      {state for one use of this library}
     mem_p: util_mem_context_p_t;       {points to mem context for this lib use}
     dir_p: mdev_dir_ent_p_t;           {list of directories that might contain MDEV files}
-    dir_curr_p: mdev_dir_ent_p_t;      {points to dir list entry currently processing}
+    dir_read_p: mdev_dir_ent_p_t;      {points to dir currently being read}
     iface_p: mdev_iface_ent_p_t;       {list of all interfaces}
     file_p: mdev_file_ent_p_t;         {list of all files}
     mod_p: mdev_mod_ent_p_t;           {list of all modules}
@@ -96,28 +96,28 @@ type
 *   Subroutines and functions.
 }
 procedure mdev_lib_end (               {end library use instance, deallocate resources}
-  in out  mdev: mdev_t);               {library use state, returned invalid}
+  in out  md: mdev_t);                 {library use state, returned invalid}
   val_param; extern;
 
 procedure mdev_lib_start (             {start a new MDEV library use instance}
-  out     mdev: mdev_t;                {library use state to initialize}
+  out     md: mdev_t;                  {library use state to initialize}
   in out  mem: util_mem_context_t);    {parent mem context, subordinate will be created}
   val_param; extern;
 
 procedure mdev_read_dir (              {read all MDEV files in directory}
-  in out  mdev: mdev_t;                {lib use state to add the information to}
+  in out  md: mdev_t;                  {lib use state to add the information to}
   in      dir: univ string_var_arg_t;  {directory name}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
 
 procedure mdev_read_dirs (             {read MDEV files in dir and all referenced dirs}
-  in out  mdev: mdev_t;                {lib use state to add the information to}
+  in out  md: mdev_t;                  {lib use state to add the information to}
   in      dir: univ string_var_arg_t;  {starting directory name}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
 
 procedure mdev_read_file (             {read one MDEV file}
-  in out  mdev: mdev_t;                {lib use state to add the information to}
+  in out  md: mdev_t;                  {lib use state to add the information to}
   in      fnam: univ string_var_arg_t; {name of file to read, ".mdev" assumed}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
