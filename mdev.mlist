@@ -3,3 +3,5 @@ mdev_lib.obj
 mdev_rd_firmware.obj
 mdev_read_dir.obj
 mdev_read_file.obj
+mdev_show.obj
+mdev_show_list.obj

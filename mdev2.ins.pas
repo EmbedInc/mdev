@@ -23,3 +23,8 @@ procedure mdev_rd_firmware (           {read FIRMWARE command}
   in out  mr: mdev_read_t;             {MDEV file reading state}
   in out  stat: sys_err_t);            {completion status, caller init to no err}
   val_param; extern;
+
+procedure mdev_show_desc (             {show description text}
+  in      desc: univ string_var_arg_t; {description string, may be long}
+  in      indent: sys_int_machine_t);  {number of space to indent each new line}
+  val_param; extern;

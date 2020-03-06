@@ -57,7 +57,7 @@ begin
   mr.md_p := addr(md);                 {fill in rest of MDEV file reading state}
 
   while hier_read_line (mr.rd, stat) do begin {loop over the top level commands}
-    case hier_read_keyw_pick (mr.rd,	{get keyword, pick from list}
+    case hier_read_keyw_pick (mr.rd,   {get keyword, pick from list}
       'MDEVDIR FIRMWARE',
       stat) of
 

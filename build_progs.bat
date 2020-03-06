@@ -7,4 +7,4 @@ rem
 setlocal
 call build_pasinit
 
-rem call src_prog %srcdir% test_mdev
+call src_prog %srcdir% mdevbuild

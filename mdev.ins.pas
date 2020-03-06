@@ -122,3 +122,28 @@ procedure mdev_read_file (             {read one MDEV file}
   in      fnam: univ string_var_arg_t; {name of file to read, ".mdev" assumed}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
+
+procedure mdev_show_list_dir (         {show directories list}
+  in      list_p: mdev_dir_ent_p_t;    {pointer to first list entry}
+  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  val_param; extern;
+
+procedure mdev_show_list_file (        {show files list}
+  in      list_p: mdev_file_ent_p_t;   {pointer to first list entry}
+  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  val_param; extern;
+
+procedure mdev_show_list_fw (          {show firmwares list}
+  in      list_p: mdev_fw_ent_p_t;     {pointer to first list entry}
+  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  val_param; extern;
+
+procedure mdev_show_list_iface (       {show interfaces list}
+  in      list_p: mdev_iface_ent_p_t;  {pointer to first list entry}
+  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  val_param; extern;
+
+procedure mdev_show_list_mod (         {show MDEV modules list}
+  in      list_p: mdev_mod_ent_p_t;    {pointer to first list entry}
+  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  val_param; extern;
