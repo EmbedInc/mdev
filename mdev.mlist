@@ -1,3 +1,5 @@
 mdev_dir.obj
 mdev_lib.obj
+mdev_rd_firmware.obj
 mdev_read_dir.obj
+mdev_read_file.obj

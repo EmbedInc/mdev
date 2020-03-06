@@ -1,19 +1,19 @@
                              MDEV File Format
-                               4 March 2020
+                               6 March 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
 
-MDEV files contain lines of ASCII text.  End of lines may be indicated by
-either a carriage return character (CR, code 13), line feed (LF, code 10),
-or a CR-LF combination.  Readers must be able to interpret any of these
-end of line indications, on a line by line basis.
-
-MDEV files are intended to be reasonably readable and editable by humans
-using ordinary text editor programs.
-
 
 Syntax
+
+  MDEV files are intended to be reasonably readable and editable by humans
+  using ordinary text editor programs.
+
+  MDEV files contain lines of ASCII text.  End of lines may be indicated
+  by either a carriage return (CR, code 13), line feed (LF, code 10), or a
+  CR-LF combination.  Readers must be able to interpret any of these end
+  of line indications, on a line by line basis.
 
   Comments
 
@@ -64,13 +64,13 @@ Syntax
     being 2-36.
 
     The "<+->" part can be either "+", "-", or be omitted.  This indicates
-    the sign of the value.  Positive is implied with the sign is omitted.
+    the sign of the value.  Positive is implied when the sign is omitted.
 
     DIGITS is the digits of the number in the specified radix.  The normal
     digits 0-9 are used for digit values 0 to 9.  The letters A-Z or a-z
     are used for digit values 10 to 35.  Only digits with values less than
-    the radix are allowed.  Leading zeros are allowed, but do not effect
-    the resulting value.  A minimum of one digit is required.
+    the radix are allowed.  Leading zeros are allowed.  A minimum of one
+    digit is required.
 
     The "<radix>#" part may be omitted, in which case the radix is implied
     to be 10 (decimal).
@@ -100,8 +100,8 @@ Syntax
 
     There are no explicit commands to start and end subordinate blocks of
     data.  Data hierarchy is solely and ridgidly defined by the
-    indentation level of each command.  For example, a subordinate block
-    is ended when a command at a higher level is encountered.
+    indentation level of each command.  A subordinate block is ended when
+    a command at a higher level is encountered.
 
 
 MDEV file set
@@ -128,3 +128,152 @@ MDEV file set
 
 
 Commands
+
+  MDEVDIR dir
+
+    Specifies directory DIR as containing more MDEV files.  Directories
+    may be referenced multiple times from multiple files.  However, the
+    files in each directory are read only once.  There is no guarantee in
+    what order unread directories are read.
+
+  INTERFACE iface
+
+    Start a subordinate block for a particular named interface.  IFACE is
+    the interface name, and is case-sensitive.
+
+    This command is used to provide optional details about a interface.
+    It does not indicate that the interface is used or provided by any
+    firmware or MDEV module.
+
+    There may be multiple INTERFACE commands for the same interface.
+    However, any optional additional information is taken from the first
+    INTERFACE command providing that information, and ignore from
+    subsequent INTERFACE commands.
+
+    DESC
+      text ... text
+      ...
+      text ... text
+
+      Provides descriptive text for the particular interface.
+
+      The text may be wrapped on multiple lines, with a total length limit
+      of 8000 characters.  The text is considered "flowed".  The line
+      breaks here are not meaningful, and are only for readability in this
+      file.  The text may be presented to the user wrapped to a new line
+      at any space.
+
+  FIRMWARE [name ... name] name
+
+    Start a subordinate block that pertains only to the named firmware.
+    The final NAME parameter is the actual firmware name.  This should
+    match the FWNAME environment variable value when the firmware is
+    built.
+
+    The leading NAME parameters are optional, and indicate a naming
+    hierarchy within which the bare firmware name is unique.  This would
+    generally follow the source repository tree structure within the
+    SOURCE directory.
+
+    PROVIDES iface
+
+      Indicates that the firmware natively provides the IFACE interface.
+      There may be any number of PROVIDES commands per firmware.  IFACE is
+      a case-sensitive interface name.
+
+      MDEV modules are included in the firmware when all interfaces they
+      require are available.  These interfaces can be made available by
+      the firmware directly (as indicated by this command), or by other
+      MDEV modules.
+
+  MODULE name
+
+    Starts a subordinate block for a particular MDEV module.  NAME is the
+    module name, and is case-sensitive.  There may be only one MODULE
+    command for a specific module within any MDEV file set.
+
+    DESC
+      text ... text
+
+      Provides descriptive text for the particular module.  See the
+      INTERFACE > DESC command description earlier in this file for
+      details.
+
+    USES iface [shared]
+
+      Indicates one interface that this module uses, and therefore
+      requires to be previously available.  The optional SHARED keyword
+      indicates that the use of this interface can be shared with other
+      modules.  It will only be shared with other modules that also
+      indicate they can share the interface.  The default without the
+      SHARED keyword is that this module requires exclusive access to the
+      interface.
+
+      IFACE is the interface name, and is case-sensitive.
+
+      There may be any number of USES commands within a MODULE block.
+
+    PROVIDES iface
+
+      Indicates that this module provides the interface IFACE for other
+      modules to use.  See the FIRMWARE > PROVIDES command description for
+      details.
+
+      There may be any number of PROVIDES commands within a MODULE block.
+
+    TEMPLATE filename
+
+      Indicates the name of a file that must be customized and added to
+      any firmware that includes this MDEV module.  The file name is
+      relative to the MDEV file containing this command.
+
+      Special strings in the file name and the body of the file are
+      substituted with different values.  The special substitution strings
+      in the file name are:
+
+        QQQ
+
+          Firmware name.
+
+      The special substitution strings in the body of the file are:
+
+        QQ1
+
+          The top level SOURCE directory that ultimately contains the
+          firmware source code.  If the firmware source repository is
+          immediately in SOURCE, then this is the repository name.
+
+          For example, if the firmware source repository is
+          source/acme/tester, then qq1 expands to "acme".  If the source
+          repository is source/tester, then qq1 expands to "tester".
+
+        QQ2
+
+          Firmware name.
+
+        QQ3
+
+          Source module generic name.  For example, if a source module
+          file name was "tester_clock.dspic", then qq3 would expand to
+          "clock".
+
+        QQ4
+
+          Specific PIC model name without the "PIC", "dsPIC", or similar
+          prefix.  Examples of qq4 expansions are "16F877" and
+          "33EP512GM706".
+
+        QQ5
+
+          Path of intermediate directories from the QQ1 directory (above)
+          to the actual source repository directory.  This is the empty
+          string when the source repository for this firmware is
+          immediately in the SOURCE directory.
+
+    SOURCE filename
+
+      Indicates a dependency on a particular source file.  FILENAME is the
+      pathname of the source file within the SOURCE diretory.  For
+      example, if the referenced source file is
+      .../source/acme/system/defs.ins.dspic, then FILENAME would be
+      "acme/system/defs.ins.dspic".

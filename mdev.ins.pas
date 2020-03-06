@@ -24,13 +24,13 @@ type
     name_p: string_var_p_t;            {points to the interface name, case-sensitive}
     desc_p: string_var_p_t;            {points to description string}
     impl_p: mdev_mod_ent_p_t;          {list of modules that implement this interface}
-    fw_p: mdev_fw_ent_p_t;             {list of firmwars implementing iface directly}
+    fw_p: mdev_fw_ent_p_t;             {list of firmwares implementing iface directly}
     end;
 
   mdev_iface_ent_t = record            {one entry in list of interfaces}
     next_p: mdev_iface_ent_p_t;        {points to next list entry}
     iface_p: mdev_iface_p_t;           {points to the interface descriptor}
-    shared: boolean;                   {this use of the interface share with others}
+    shared: boolean;                   {this interface use shareable with others}
     end;
 
   mdev_file_t = record                 {information about one source or required file}
@@ -58,11 +58,12 @@ type
     end;
 
   mdev_mod_t = record                  {information about one module}
-    name_p: string_var_p_t;            {points to module name, upper case}
+    name_p: string_var_p_t;            {points to module name, mixed case}
     desc_p: string_var_p_t;            {points to description string}
     uses_p: mdev_iface_ent_p_t;        {list of interfaces required by this module}
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this module}
-    files_p: mdev_file_ent_p_t;        {list of required files}
+    templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
+    files_p: mdev_file_ent_p_t;        {list of referenced files}
     end;
 
   mdev_modids_t =                      {array of module IDs for a firmware}
