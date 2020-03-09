@@ -1,5 +1,6 @@
 module mdev_show;
 define mdev_show_desc;
+define mdev_show;
 %include 'mdev2.ins.pas';
 {
 ********************************************************************************
@@ -87,4 +88,38 @@ begin
   if ln.len > indent then begin        {there is a partial unwritten line ?}
     writeln (ln.str:ln.len);           {write it}
     end;
+  end;
+{
+********************************************************************************
+*
+*   Subroutine MDEV_SHOW (MD, INDENT)
+*
+*   Show all the data in the MDEV library use instance, MD.  INDENT is the
+*   number of spaces the whole output will be indented.
+}
+procedure mdev_show (                  {show all MDEV data}
+  in      md: mdev_t;                  {library use instance to show data of}
+  in      indent: sys_int_machine_t);  {indentation level, 0 for none}
+  val_param;
+
+begin
+  writeln;
+  writeln ('':indent, 'Directories:');
+  mdev_show_list_dir (md.dir_p, indent+2, true);
+
+  writeln;
+  writeln ('':indent, 'Interfaces:');
+  mdev_show_list_iface (md.iface_p,  indent+2, true);
+
+  writeln;
+  writeln ('':indent, 'Files:');
+  mdev_show_list_file (md.file_p,  indent+2, true);
+
+  writeln;
+  writeln ('':indent, 'Modules:');
+  mdev_show_list_mod (md.mod_p,  indent+2, true);
+
+  writeln;
+  writeln ('':indent, 'Firmwares:');
+  mdev_show_list_fw (md.fw_p,  indent+2, true);
   end;

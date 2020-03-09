@@ -22,25 +22,7 @@ begin
     stat);
   sys_error_abort (stat, '', '', nil, 0);
 
-  writeln;
-  writeln ('Directories:');
-  mdev_show_list_dir (md.dir_p, 2);
-
-  writeln;
-  writeln ('Interfaces:');
-  mdev_show_list_iface (md.iface_p, 2);
-
-  writeln;
-  writeln ('Files:');
-  mdev_show_list_file (md.file_p, 2);
-
-  writeln;
-  writeln ('Modules:');
-  mdev_show_list_mod (md.mod_p, 2);
-
-  writeln;
-  writeln ('Firmwares:');
-  mdev_show_list_fw (md.fw_p, 2);
+  mdev_show (md, 0);
 
   mdev_lib_end (md);                   {end use of the MDEV library}
   end.

@@ -52,11 +52,6 @@ type
     dir_p: mdev_dir_p_t;               {points to the directory descriptor}
     end;
 
-  mdev_mod_ent_t = record              {one entry in list of modules}
-    next_p: mdev_mod_ent_p_t;          {points to next list entry}
-    mod_p: mdev_mod_p_t;               {points to the module descriptor}
-    end;
-
   mdev_mod_t = record                  {information about one module}
     name_p: string_var_p_t;            {points to module name, mixed case}
     desc_p: string_var_p_t;            {points to description string}
@@ -64,6 +59,11 @@ type
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this module}
     templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
     files_p: mdev_file_ent_p_t;        {list of referenced files}
+    end;
+
+  mdev_mod_ent_t = record              {one entry in list of modules}
+    next_p: mdev_mod_ent_p_t;          {points to next list entry}
+    mod_p: mdev_mod_p_t;               {points to the module descriptor}
     end;
 
   mdev_modids_t =                      {array of module IDs for a firmware}
@@ -123,27 +123,37 @@ procedure mdev_read_file (             {read one MDEV file}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
 
+procedure mdev_show (                  {show all MDEV data}
+  in      md: mdev_t;                  {library use instance to show data of}
+  in      indent: sys_int_machine_t);  {indentation level, 0 for none}
+  val_param; extern;
+
 procedure mdev_show_list_dir (         {show directories list}
   in      list_p: mdev_dir_ent_p_t;    {pointer to first list entry}
-  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  in      indent: sys_int_machine_t;   {number of spaces to indent each line}
+  in      sub: boolean);               {show sub-level information}
   val_param; extern;
 
 procedure mdev_show_list_file (        {show files list}
   in      list_p: mdev_file_ent_p_t;   {pointer to first list entry}
-  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  in      indent: sys_int_machine_t;   {number of spaces to indent each line}
+  in      sub: boolean);               {show sub-level information}
   val_param; extern;
 
 procedure mdev_show_list_fw (          {show firmwares list}
   in      list_p: mdev_fw_ent_p_t;     {pointer to first list entry}
-  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  in      indent: sys_int_machine_t;   {number of spaces to indent each line}
+  in      sub: boolean);               {show sub-level information}
   val_param; extern;
 
 procedure mdev_show_list_iface (       {show interfaces list}
   in      list_p: mdev_iface_ent_p_t;  {pointer to first list entry}
-  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  in      indent: sys_int_machine_t;   {number of spaces to indent each line}
+  in      sub: boolean);               {show sub-level information}
   val_param; extern;
 
 procedure mdev_show_list_mod (         {show MDEV modules list}
   in      list_p: mdev_mod_ent_p_t;    {pointer to first list entry}
-  in      indent: sys_int_machine_t);  {number of spaces to indent each line}
+  in      indent: sys_int_machine_t;   {number of spaces to indent each line}
+  in      sub: boolean);               {show sub-level information}
   val_param; extern;
