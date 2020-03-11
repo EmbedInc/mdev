@@ -176,7 +176,7 @@ begin
     obj_p := ent_p^.fw_p;              {get pointer to the actual object}
 
     write ('':indent);
-    if obj_p^.context_p <> nil then begin
+    if obj_p^.context_p^.len > 0 then begin
       write ('(', obj_p^.context_p^.str:obj_p^.context_p^.len, ') ');
       end;
     writeln (obj_p^.name_p^.str:obj_p^.name_p^.len);
