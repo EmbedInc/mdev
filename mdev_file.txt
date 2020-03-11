@@ -1,5 +1,5 @@
                              MDEV File Format
-                               6 March 2020
+                              11 March 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -135,6 +135,20 @@ Commands
     may be referenced multiple times from multiple files.  However, the
     files in each directory are read only once.  There is no guarantee in
     what order unread directories are read.
+
+  FILE name
+
+    Start a subordinate block for the file named NAME.  NAME can be a
+    relative pathname.  The absolute pathname will be resolved relative to
+    the directory containing the file this command is in.  Only absolute
+    pathnames of files are used internally, and to determine whether two
+    files are the same or not.
+
+    The subordinate commands are:
+
+    REQUIRES fnam
+
+      The file FNAM is required in the process of building file NAME.
 
   INTERFACE iface
 

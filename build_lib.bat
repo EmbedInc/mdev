@@ -15,6 +15,7 @@ call src_pas %srcdir% %libname%_fw
 call src_pas %srcdir% %libname%_iface
 call src_pas %srcdir% %libname%_lib
 call src_pas %srcdir% %libname%_module
+call src_pas %srcdir% %libname%_rd_file
 call src_pas %srcdir% %libname%_rd_firmware
 call src_pas %srcdir% %libname%_rd_interface
 call src_pas %srcdir% %libname%_rd_module

@@ -58,7 +58,7 @@ begin
 
   while hier_read_line (mr.rd, stat) do begin {loop over the top level commands}
     case hier_read_keyw_pick (mr.rd,   {get keyword, pick from list}
-      'MDEVDIR INTERFACE FIRMWARE MODULE',
+      'MDEVDIR INTERFACE FIRMWARE MODULE FILE',
       stat) of
 
 1:    begin                            {MDEVDIR}
@@ -75,6 +75,10 @@ begin
 
 4:    begin                            {MODULE}
         mdev_rd_module (mr, stat);
+        end;
+
+5:    begin                            {FILE}
+        mdev_rd_file (mr, stat);
         end;
 
       end;                             {end of command cases}

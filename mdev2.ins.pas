@@ -43,6 +43,11 @@ procedure mdev_mod_get (               {get a specific modules list entry}
   out     ent_p: mdev_mod_ent_p_t);    {pointer to global list entry for this module}
   val_param; extern;
 
+procedure mdev_rd_file (               {read FILE command}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; extern;
+
 procedure mdev_rd_firmware (           {read FIRMWARE command}
   in out  mr: mdev_read_t;             {MDEV file reading state}
   in out  stat: sys_err_t);            {completion status, caller init to no err}

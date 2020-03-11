@@ -99,8 +99,10 @@ begin
     writeln ('':indent, obj_p^.name_p^.str:obj_p^.name_p^.len);
 
     if sub then begin
-      writeln ('':indent+2, 'Depends on:');
-      mdev_show_list_file (obj_p^.dep_p, indent+4, false);
+      if obj_p^.dep_p <> nil then begin {depends-on list is not empty ?}
+        writeln ('':indent+2, 'Requires:');
+        mdev_show_list_file (obj_p^.dep_p, indent+4, false);
+        end;
       end;
 
     ent_p := ent_p^.next_p;            {advance to next list entry}
