@@ -139,7 +139,7 @@ begin
       writeln ('':indent+2, 'Uses:');
       mdev_show_list_iface (obj_p^.uses_p, indent+4, false);
 
-      writeln ('':indent+2, 'Implements:');
+      writeln ('':indent+2, 'Provides:');
       mdev_show_list_iface (obj_p^.impl_p, indent+4, false);
 
       writeln ('':indent+2, 'Template files:');
@@ -182,7 +182,7 @@ begin
     writeln (obj_p^.name_p^.str:obj_p^.name_p^.len);
 
     if sub then begin
-      writeln ('':indent+2, 'Implements:');
+      writeln ('':indent+2, 'Provides:');
       mdev_show_list_iface (obj_p^.impl_p, indent+4, false);
 
       writeln ('':indent+2, 'Modules supported:');

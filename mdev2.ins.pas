@@ -19,6 +19,12 @@ procedure mdev_dir_get (               {find a specific directories list entry}
   out     ent_p: mdev_dir_ent_p_t);    {pointer to global list entry for this dir}
   val_param; extern;
 
+procedure mdev_file_get (              {get specific files list entry}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      fnam: univ string_var_arg_t; {file name, need not be absolute}
+  out     ent_p: mdev_file_ent_p_t);   {pointer to global list entry for this file}
+  val_param; extern;
+
 procedure mdev_fw_get (                {get a specific firmware list entry}
   in out  md: mdev_t;                  {MDEV library use state}
   in      name: univ string_var_arg_t; {namespace hierarchy and firmware name}
@@ -29,6 +35,12 @@ procedure mdev_iface_get (             {get specific interfaces list entry}
   in out  md: mdev_t;                  {MDEV library use state}
   in      name: univ string_var_arg_t; {interface name, case-sensitive}
   out     ent_p: mdev_iface_ent_p_t);  {returned pointer to global list entry}
+  val_param; extern;
+
+procedure mdev_mod_get (               {get a specific modules list entry}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      name: univ string_var_arg_t; {module name, case-sensitive}
+  out     ent_p: mdev_mod_ent_p_t);    {pointer to global list entry for this module}
   val_param; extern;
 
 procedure mdev_rd_firmware (           {read FIRMWARE command}

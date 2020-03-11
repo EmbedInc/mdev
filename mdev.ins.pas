@@ -4,6 +4,7 @@
 }
 const
   mdev_subsys_k = -70;                 {MDEV library subsystem ID}
+  mdev_stat_share_k = 1;               {sharing discrepancy with module references}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 255;              {maximum valid module ID}
