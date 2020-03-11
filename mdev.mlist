@@ -1,6 +1,11 @@
 mdev_dir.obj
+mdev_fw.obj
+mdev_iface.obj
 mdev_lib.obj
 mdev_rd_firmware.obj
+mdev_rd_interface.obj
+mdev_rd_module.obj
+mdev_rd_text.obj
 mdev_read_dir.obj
 mdev_read_file.obj
 mdev_show.obj

@@ -58,21 +58,27 @@ begin
 
   while hier_read_line (mr.rd, stat) do begin {loop over the top level commands}
     case hier_read_keyw_pick (mr.rd,   {get keyword, pick from list}
-      'MDEVDIR FIRMWARE',
+      'MDEVDIR INTERFACE FIRMWARE MODULE',
       stat) of
 
 1:    begin                            {MDEVDIR}
         mdev_rd_mdevdir (mr, stat);
         end;
 
-2:    begin                            {FIRMWARE}
+2:    begin                            {INTERFACE}
+        mdev_rd_interface (mr, stat);
+        end;
+
+3:    begin                            {FIRMWARE}
         mdev_rd_firmware (mr, stat);
+        end;
+
+4:    begin                            {MODULE}
+        mdev_rd_module (mr, stat);
         end;
 
       end;                             {end of command cases}
     if sys_error(stat) then goto leave;
-    if not hier_read_eol (mr.rd, stat) {check that end of line was reached}
-      then goto leave;
     end;                               {back for next line from MDEV file}
 
 leave:                                 {file open, STAT already set}

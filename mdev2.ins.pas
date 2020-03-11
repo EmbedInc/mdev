@@ -19,7 +19,34 @@ procedure mdev_dir_get (               {find a specific directories list entry}
   out     ent_p: mdev_dir_ent_p_t);    {pointer to global list entry for this dir}
   val_param; extern;
 
+procedure mdev_fw_get (                {get a specific firmware list entry}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      name: univ string_var_arg_t; {namespace hierarchy and firmware name}
+  out     ent_p: mdev_fw_ent_p_t);     {pointer to global list entry for this fw}
+  val_param; extern;
+
+procedure mdev_iface_get (             {get specific interfaces list entry}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      name: univ string_var_arg_t; {interface name, case-sensitive}
+  out     ent_p: mdev_iface_ent_p_t);  {returned pointer to global list entry}
+  val_param; extern;
+
 procedure mdev_rd_firmware (           {read FIRMWARE command}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; extern;
+
+procedure mdev_rd_interface (          {read INTERFACE command}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; extern;
+
+procedure mdev_rd_text (               {read arbitrary wrappable text}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  out     str_p: string_var_p_t);      {returned pointer to new string}
+  val_param; extern;
+
+procedure mdev_rd_module (             {read MODULE command}
   in out  mr: mdev_read_t;             {MDEV file reading state}
   in out  stat: sys_err_t);            {completion status, caller init to no err}
   val_param; extern;

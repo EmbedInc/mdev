@@ -10,8 +10,13 @@ call build_pasinit
 call src_insall %srcdir% %libname%
 
 call src_pas %srcdir% %libname%_dir
+call src_pas %srcdir% %libname%_fw
+call src_pas %srcdir% %libname%_iface
 call src_pas %srcdir% %libname%_lib
 call src_pas %srcdir% %libname%_rd_firmware
+call src_pas %srcdir% %libname%_rd_interface
+call src_pas %srcdir% %libname%_rd_module
+call src_pas %srcdir% %libname%_rd_text
 call src_pas %srcdir% %libname%_read_dir
 call src_pas %srcdir% %libname%_read_file
 call src_pas %srcdir% %libname%_show
