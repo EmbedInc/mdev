@@ -76,10 +76,16 @@ begin
       ln.len := indent;                {reset line to just indentation}
       end;
 
-    string_append1 (ln, ' ');          {write blank after previous word}
-    while p < bl do begin              {copy this word to the output line}
+    if ln.len > indent then begin      {there is previous content on this line ?}
+      string_append1 (ln, ' ');        {write blank after previous word}
+      end;
+    while p < bl do begin              {back here each new character in this word}
       string_append1 (ln, desc.str[p]); {copy this character}
       p := p + 1;                      {advance to next character}
+      if ln.len >= ln.max then begin   {output line filled ?}
+        writeln (ln.str:ln.len);       {write this line}
+        ln.len := indent;              {reset line to just indentation}
+        end;
       end;
 
     skip_blanks (desc, p);             {skip over blanks after end of word}
