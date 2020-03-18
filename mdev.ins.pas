@@ -124,6 +124,10 @@ procedure mdev_read_file (             {read one MDEV file}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
 
+procedure mdev_resolve (               {resolve dependencies, add modules to FWs}
+  in out  md: mdev_t);                 {MDEV library use state}
+  val_param; extern;
+
 procedure mdev_show (                  {show all MDEV data}
   in      md: mdev_t;                  {library use instance to show data of}
   in      indent: sys_int_machine_t);  {indentation level, 0 for none}

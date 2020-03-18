@@ -1,5 +1,5 @@
                              MDEV File Format
-                              11 March 2020
+                              18 March 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -27,13 +27,13 @@ Syntax
 
     are ignored content-wise, and are collectively referred to as
     "comment" lines.  Comment lines are intended to aid human readability
-    and understanding, although they have no effect on the data contents
-    of MDEV files.
+    and understanding.  They have no effect on the data contents of MDEV
+    files.
 
     Comment lines are generally ignored and not mentioned in the remainder
     of this document.  However, it is legal for one or more comment lines
-    to between any two lines, at the start of the file, or at the end of
-    the file.
+    to be between any two lines, at the start of the file, or at the end
+    of the file.
 
   Commands and parameters
 
@@ -108,10 +108,10 @@ MDEV file set
 
   MDEV files provide information for and about modular device modules.
   Source code for modules used in one build may be kept in various places.
-  Modules specific to a particular firmware would usually be part of that
-  firmware.  Modules for a class of related devices may be in their own
-  source repository.  Modules for generic devices may be in yet other
-  source repositories.
+  Modules specific to a particular firmware would usually be in the same
+  source repository as the firmware.  Modules for a class of related
+  devices may be in their own source repository.  Modules for generic
+  devices may be in yet other source repositories.
 
   The MDEV configuration program starts by reading the MDEV files in the
   source repository of the specific firmware being built.  Those MDEV
@@ -131,10 +131,10 @@ Commands
 
   MDEVDIR dir
 
-    Specifies directory DIR as containing more MDEV files.  Directories
-    may be referenced multiple times from multiple files.  However, the
-    files in each directory are read only once.  There is no guarantee in
-    what order unread directories are read.
+    Specifies directory DIR as possibly containing MDEV files.
+    Directories may be referenced multiple times from multiple files.
+    However, the files in each directory are read only once.  There is no
+    guarantee in what order unread directories are read.
 
   FILE name
 
@@ -161,7 +161,7 @@ Commands
 
     There may be multiple INTERFACE commands for the same interface.
     However, any optional additional information is taken from the first
-    INTERFACE command providing that information, and ignore from
+    INTERFACE command providing that information, and ignored from
     subsequent INTERFACE commands.
 
     DESC
@@ -199,6 +199,27 @@ Commands
       require are available.  These interfaces can be made available by
       the firmware directly (as indicated by this command), or by other
       MDEV modules.
+
+    ID id modname
+
+      Assigns a fixed ID to a module in this firmware.  Valid IDs are in
+      the range of 1 to 255.
+
+      Without this command, modules area automatically assigned unique IDs
+      within a firmware when it is determined that the module can be added
+      to the firmware.  This command forces the module to have a
+      particular ID.  Other modules will not be assigned this ID.  It is
+      an error to assign the same ID to different modules using this
+      command.
+
+      Assigning an ID to a module in a firmware does not guarantee that
+      the module will be included in the firmware.  This command
+      essentially reserves the ID, should the module be included in the
+      firmware.
+
+      Each firmware has its own ID namespace.  This means that while each
+      firmware is limited to having 255 modules included, the global
+      number of total available modules is unlimited.
 
   MODULE name
 
@@ -286,8 +307,5 @@ Commands
 
     SOURCE filename
 
-      Indicates a dependency on a particular source file.  FILENAME is the
-      pathname of the source file within the SOURCE diretory.  For
-      example, if the referenced source file is
-      .../source/acme/system/defs.ins.dspic, then FILENAME would be
-      "acme/system/defs.ins.dspic".
+      Indicates a dependency on a particular source file.  FILENAME is
+      interpreted relative to the directory containing this MDEV file.

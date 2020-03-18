@@ -190,7 +190,7 @@ begin
       writeln ('':indent+2, 'Modules supported:');
       mdev_show_list_mod (obj_p^.mod_p, indent+4, false);
 
-      writeln ('':indent+2, 'Assigned modules:');
+      writeln ('':indent+2, 'Module IDs:');
       for id := mdev_modid_min_k to mdev_modid_max_k do begin
         if obj_p^.modids[id] <> nil then begin
           writeln ('':indent+4, id,

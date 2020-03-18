@@ -22,7 +22,7 @@ begin
     stat);
   sys_error_abort (stat, '', '', nil, 0);
 
-  mdev_show (md, 0);
-
+  mdev_resolve (md);                   {resolve dependencies, add modules to FWs}
+  mdev_show (md, 0);                   {show the results}
   mdev_lib_end (md);                   {end use of the MDEV library}
   end.
