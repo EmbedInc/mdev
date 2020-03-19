@@ -29,7 +29,7 @@ begin
 *
 *   Subroutine MDEV_SHOW_DESC (DESC, INDENT)
 *
-*   Show the scription string DESC on standard output.  It will be wrapped as
+*   Show the description string DESC on standard output.  It will be wrapped as
 *   needed, and each line will be indented INDENT spaces.
 }
 procedure mdev_show_desc (             {show description text}

@@ -39,6 +39,7 @@ begin
   obj_p^.impl_p := nil;
   obj_p^.templ_p := nil;
   obj_p^.files_p := nil;
+  obj_p^.incl_p := nil;
 
   util_mem_grab (                      {allocate mem for new list entry}
     sizeof(ent_p^), md.mem_p^, false, ent_p);

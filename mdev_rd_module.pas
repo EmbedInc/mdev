@@ -198,6 +198,43 @@ begin
 {
 ********************************************************************************
 *
+*   Local subroutine MOD_INCLUDE (MR, STAT)
+}
+procedure mod_include (                {process INCLUDE command after the keyword}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  mod: mdev_mod_t;             {the module}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; internal;
+
+var
+  name: string_treename_t;             {file name from command line}
+  ent_p: mdev_file_ent_p_t;            {pointer to files list entry}
+  obj_p: mdev_file_p_t;                {pointer to file descriptor}
+
+begin
+  name.max := size_char(name.str);     {init local var string}
+
+  if not hier_read_tk_req (mr.rd, name, stat) then return; {get file name}
+  if not hier_read_eol (mr.rd, stat) then return;
+
+  mdev_file_get (mr.md_p^, name, ent_p); {find list entry for this file}
+  obj_p := ent_p^.file_p;              {get pointer to file descriptor}
+
+  ent_p := mod.incl_p;                 {init to first files list entry}
+  while ent_p <> nil do begin          {scan the existing list entries}
+    if ent_p^.file_p = obj_p then return; {this file is already listed ?}
+    ent_p := ent_p^.next_p;            {advance to next list entry}
+    end;                               {back to check this new list entry}
+
+  util_mem_grab (                      {allocate mem for new list entry}
+    sizeof(ent_p^), mr.md_p^.mem_p^, false, ent_p);
+  ent_p^.file_p := obj_p;              {fill in list entry}
+  ent_p^.next_p := mod.incl_p;         {link to entry to start of list}
+  mod.incl_p := ent_p;
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_RD_MODULE (MR, STAT)
 *
 *   Read the remainder of the MODULE command.  The command name has been read.
@@ -225,7 +262,7 @@ begin
   hier_read_block_start (mr.rd);       {go down into MODULE block}
   while hier_read_line (mr.rd, stat) do begin {back here each new subcommand}
     case hier_read_keyw_pick (mr.rd,   {get subcommand keyword, pick from list}
-        'DESC USES PROVIDES TEMPLATE SOURCE',
+        'DESC USES PROVIDES TEMPLATE SOURCE INCLUDE',
         stat) of
 
 1:    begin                            {DESC}
@@ -247,6 +284,10 @@ begin
 
 5:    begin                            {SOURCE}
         mod_source (mr, obj_p^, stat); {process rest of command line}
+        end;
+
+6:    begin                            {INCLUDE}
+        mod_include (mr, obj_p^, stat); {process rest of command line}
         end;
 
       end;                             {end of subcommand cases}

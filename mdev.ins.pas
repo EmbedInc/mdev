@@ -60,6 +60,7 @@ type
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this module}
     templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
     files_p: mdev_file_ent_p_t;        {list of referenced files}
+    incl_p: mdev_file_ent_p_t;         {list of include files}
     end;
 
   mdev_mod_ent_t = record              {one entry in list of modules}

@@ -1,5 +1,5 @@
                              MDEV File Format
-                              18 March 2020
+                              19 March 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -309,3 +309,10 @@ Commands
 
       Indicates a dependency on a particular source file.  FILENAME is
       interpreted relative to the directory containing this MDEV file.
+
+    INCLUDE filename
+
+      Indicates a file that needs to be globally included by the firmware
+      using this module.  This file would typically be included from the
+      firmware's main project include file.  FILENAME is interpreted
+      relative to the directory containing this MDEV file.
