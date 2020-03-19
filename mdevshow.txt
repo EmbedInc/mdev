@@ -1,0 +1,13 @@
+                             Program MDEVSHOW
+                              19 March 2020
+
+Show all the MDEV state visible from the current directory, resolve
+dependencies, and show all the resulting data.
+
+This program can be useful for checking the MDEV files in the current
+directory, and in all the directories referenced from those.  It also
+shows the data that is used as part of the automatic MDEV build process,
+and can be useful for debugging problems with that process.
+
+See the MDEV documentation file for a overview of the MDEV mechanism.  See
+the MDEV_FILE documentation file for details of the MDEV file format.
