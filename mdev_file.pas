@@ -1,6 +1,7 @@
 module mdev_file;
 define mdev_file_get;
 define mdev_file_in_list;
+define mdev_file_add_list;
 %include 'mdev2.ins.pas';
 {
 ********************************************************************************
@@ -83,4 +84,30 @@ begin
   ent_p^.file_p := addr(file);         {fill in the list entry}
   ent_p^.next_p := list_p;             {link new entry to start of list}
   list_p := ent_p;
+  end;
+{
+********************************************************************************
+*
+*   Subroutine MDEV_FILE_ADD_LIST (MD, SRCLIST_P, DSTLIST_P)
+*
+*   Make sure all the files in the list pointed to by SRCLIST_P are in the list
+*   pointed to by DSTLIST_P.  Put another way, all the files in the SRCLIST_P^
+*   list are added to the DSTLIST_P^ list except those that are already there.
+}
+procedure mdev_file_add_list (         {add list of files to existing list}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      srclist_p: mdev_file_ent_p_t; {pointer to list of files to add}
+  in out  dstlist_p: mdev_file_ent_p_t); {pointer to list to add the files to}
+  val_param;
+
+var
+  ent_p: mdev_file_ent_p_t;            {pointer to source list entry}
+
+begin
+  ent_p := srclist_p;                  {init to first source list entry}
+  while ent_p <> nil do begin          {back here each new source list entry}
+    mdev_file_in_list (                {make sure this source file is in dest list}
+      md, ent_p^.file_p^, dstlist_p);
+    ent_p := ent_p^.next_p;            {to next source list entry}
+    end;                               {back to process this new source list entry}
   end;

@@ -76,6 +76,9 @@ type
     context_p: string_var_p_t;         {firmware name context hierarchy, NIL for top}
     name_p: string_var_p_t;            {firmware name, upper case}
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this firmware}
+    templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
+    files_p: mdev_file_ent_p_t;        {list of referenced files}
+    incl_p: mdev_file_ent_p_t;         {list of include files}
     mod_p: mdev_mod_ent_p_t;           {list of modules this firmware can support}
     modids: mdev_modids_t;             {module for each possible module ID}
     end;

@@ -64,7 +64,11 @@ next_ent:                              {done with this list entry, on to next}
   string_alloc (                       {allocate mem for name string}
     name.len, md.mem_p^, false, obj_p^.name_p);
   string_copy (fwname, obj_p^.name_p^); {set firmware name}
-  obj_p^.mod_p := nil;                 {init to no interfaces implemented}
+  obj_p^.impl_p := nil;                {init to no interfaces implemented}
+  obj_p^.templ_p := nil;               {init to no file dependencies}
+  obj_p^.files_p := nil;
+  obj_p^.incl_p := nil;
+  obj_p^.mod_p := nil;                 {init to no modules supported}
   for ii := mdev_modid_min_k to mdev_modid_max_k do begin {init to no module IDs assigned}
     obj_p^.modids[ii] := nil;
     end;

@@ -209,6 +209,10 @@ label
   next_mod, rescan;
 
 begin
+{
+*   Resolve the nested module/interface dependencies and make a flat list of the
+*   modules this firmware can support.
+}
 rescan:                                {back here to check again after module(s) added}
   newmod := false;                     {init to no new module added this pass}
   modstart_p := fw.mod_p;              {init where to start looking for interfaces}
@@ -237,4 +241,15 @@ next_mod:                              {done with this module, on to next}
     end;                               {back to check this new module}
 
   if newmod then goto rescan;          {new module added, support could have changed ?}
+{
+*   Resolve the nested file dependencies and make flat dependencies lists.
+}
+  modent_p := fw.mod_p;                {init to first module in list}
+  while modent_p <> nil do begin       {back here each new module}
+    mod_p := modent_p^.mod_p;          {get pointer to this module descriptor}
+    mdev_file_add_list (md, mod_p^.templ_p, fw.templ_p); {add mod's files to FW}
+    mdev_file_add_list (md, mod_p^.files_p, fw.files_p);
+    mdev_file_add_list (md, mod_p^.incl_p, fw.incl_p);
+    modent_p := modent_p^.next_p;      {to next module in this firmware}
+    end;                               {back to process this new module}
   end;

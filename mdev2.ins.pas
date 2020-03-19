@@ -19,6 +19,12 @@ procedure mdev_dir_get (               {find a specific directories list entry}
   out     ent_p: mdev_dir_ent_p_t);    {pointer to global list entry for this dir}
   val_param; extern;
 
+procedure mdev_file_add_list (         {add list of files to existing list}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      srclist_p: mdev_file_ent_p_t; {pointer to list of files to add}
+  in out  dstlist_p: mdev_file_ent_p_t); {pointer to list to add the files to}
+  val_param; extern;
+
 procedure mdev_file_get (              {get specific files list entry}
   in out  md: mdev_t;                  {MDEV library use state}
   in      fnam: univ string_var_arg_t; {file name, need not be absolute}

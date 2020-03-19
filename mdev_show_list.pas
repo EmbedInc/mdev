@@ -190,6 +190,15 @@ begin
       writeln ('':indent+2, 'Provides:');
       mdev_show_list_iface (obj_p^.impl_p, indent+4, false);
 
+      writeln ('':indent+2, 'Template files:');
+      mdev_show_list_file (obj_p^.templ_p, indent+4, false);
+
+      writeln ('':indent+2, 'Source files:');
+      mdev_show_list_file (obj_p^.files_p, indent+4, false);
+
+      writeln ('':indent+2, 'Include files:');
+      mdev_show_list_file (obj_p^.incl_p, indent+4, false);
+
       writeln ('':indent+2, 'Modules supported:');
       mdev_show_list_mod (obj_p^.mod_p, indent+4, false);
 
