@@ -16,6 +16,9 @@ call src_pas %srcdir% %libname%_iface
 call src_pas %srcdir% %libname%_lib
 call src_pas %srcdir% %libname%_module
 call src_pas %srcdir% %libname%_resolve
+call src_pas %srcdir% %libname%_resolve_file
+call src_pas %srcdir% %libname%_resolve_fw
+call src_pas %srcdir% %libname%_resolve_mod
 call src_pas %srcdir% %libname%_rd_file
 call src_pas %srcdir% %libname%_rd_firmware
 call src_pas %srcdir% %libname%_rd_interface

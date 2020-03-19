@@ -25,6 +25,12 @@ procedure mdev_file_get (              {get specific files list entry}
   out     ent_p: mdev_file_ent_p_t);   {pointer to global list entry for this file}
   val_param; extern;
 
+procedure mdev_file_in_list (          {insure file is in list}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in var  file: mdev_file_t;           {the file}
+  in out  list_p: mdev_file_ent_p_t);  {pointer to the list}
+  val_param; extern;
+
 procedure mdev_fw_get (                {get a specific firmware list entry}
   in out  md: mdev_t;                  {MDEV library use state}
   in      name: univ string_var_arg_t; {namespace hierarchy and firmware name}
@@ -41,6 +47,21 @@ procedure mdev_mod_get (               {get a specific modules list entry}
   in out  md: mdev_t;                  {MDEV library use state}
   in      name: univ string_var_arg_t; {module name, case-sensitive}
   out     ent_p: mdev_mod_ent_p_t);    {pointer to global list entry for this module}
+  val_param; extern;
+
+procedure mdev_resolve_file (          {resolve dependencies of a file}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in out  file: mdev_file_t);          {file to resolve dependencies of}
+  val_param; extern;
+
+procedure mdev_resolve_fw (            {resolve dependencies of a firmware}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in out  fw: mdev_fw_t);              {firmware to resolve dependencies of}
+  val_param; extern;
+
+procedure mdev_resolve_mod (           {resolve dependencies of a module}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in out  mod: mdev_mod_t);            {module to resolve dependencies of}
   val_param; extern;
 
 procedure mdev_rd_file (               {read FILE command}

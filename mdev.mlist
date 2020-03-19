@@ -5,6 +5,9 @@ mdev_iface.obj
 mdev_lib.obj
 mdev_module.obj
 mdev_resolve.obj
+mdev_resolve_file.obj
+mdev_resolve_fw.obj
+mdev_resolve_mod.obj
 mdev_rd_file.obj
 mdev_rd_firmware.obj
 mdev_rd_interface.obj
