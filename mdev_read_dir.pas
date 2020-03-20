@@ -120,4 +120,6 @@ begin
     if sys_error(stat) then return;
     md.dir_read_p := md.dir_read_p^.next_p; {to next unread directory}
     until md.dir_read_p = nil;         {back until no unread directory left}
+
+  mdev_check (md, stat);               {check for error in the resulting data}
   end;

@@ -1,3 +1,4 @@
+mdev_check.obj
 mdev_dir.obj
 mdev_file.obj
 mdev_fw.obj

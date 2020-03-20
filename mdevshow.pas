@@ -1,6 +1,6 @@
-{   Program MDEV_BUILD [firmware]
+{   Program MDEVSHOW
 *
-*   Adds qualifying MDEV modules to a firmware build.
+*   Show all the MDEV structure as viewed from the current directory.
 }
 program mdev_build;
 %include 'sys.ins.pas';
@@ -15,6 +15,9 @@ var
   stat: sys_err_t;                     {completion status}
 
 begin
+  string_cmline_init;
+  string_cmline_end_abort;
+
   mdev_lib_start (md, util_top_mem_context); {start use of the MDEV library}
   mdev_read_dirs (                     {read MDEV file set}
     md,                                {MDEV library state}

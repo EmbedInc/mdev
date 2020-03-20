@@ -5,6 +5,9 @@
 const
   mdev_subsys_k = -70;                 {MDEV library subsystem ID}
   mdev_stat_share_k = 1;               {sharing discrepancy with module references}
+  mdev_stat_unface_k = 2;              {undefined interface, no FW or module}
+  mdev_stat_unface_fw_k = 3;           {undefined iface, ref to firmware}
+  mdev_stat_unface_mod_k = 4;          {undefined iface, ref to module}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 255;              {maximum valid module ID}
@@ -101,6 +104,11 @@ type
 {
 *   Subroutines and functions.
 }
+procedure mdev_check (                 {check all data for errors}
+  in out  md: mdev_t;                  {MDEV library use state}
+  out     stat: sys_err_t);            {returned error status}
+  val_param; extern;
+
 procedure mdev_lib_end (               {end library use instance, deallocate resources}
   in out  md: mdev_t);                 {library use state, returned invalid}
   val_param; extern;

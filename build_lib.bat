@@ -9,6 +9,7 @@ call build_pasinit
 
 call src_insall %srcdir% %libname%
 
+call src_pas %srcdir% %libname%_check
 call src_pas %srcdir% %libname%_dir
 call src_pas %srcdir% %libname%_file
 call src_pas %srcdir% %libname%_fw
