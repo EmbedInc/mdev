@@ -173,10 +173,10 @@ begin
 }
   open := 0;                           {init to no open ID found}
   for id := 1 to 255 do begin          {scan the possible module IDs}
-    if fw.modids[id] = addr(mod) then return; {this module already has ID ?}
+    if fw.modids[id].mod_p = addr(mod) then return; {this module already has ID ?}
     if                                 {found first open ID ?}
         (open = 0) and                 {not previously found ?}
-        (fw.modids[id] = nil)          {this ID is open ?}
+        (fw.modids[id].mod_p = nil)    {this ID is open ?}
         then begin
       open := id;                      {save first open ID}
       end;
@@ -184,7 +184,7 @@ begin
 {
 *   The module does not already have a ID assigned.  OPEN is the first open ID.
 }
-  fw.modids[open] := addr(mod);        {assign first open ID to the module}
+  fw.modids[open].mod_p := addr(mod);  {assign first open ID to the module}
   end;
 {
 ********************************************************************************

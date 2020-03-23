@@ -74,9 +74,13 @@ type
     mod_p: mdev_mod_p_t;               {points to the module descriptor}
     end;
 
+  mdev_modid_t = record                {info about a module ID within a firmware}
+    mod_p: mdev_mod_p_t;               {pointer to the module, NIL for none}
+    used: boolean;                     {this module is actually used within the FW}
+    end;
+
   mdev_modids_t =                      {array of module IDs for a firmware}
-    array[mdev_modid_min_k .. mdev_modid_max_k] of
-    mdev_mod_p_t;                      {pointer to module for each possible ID}
+    array[mdev_modid_min_k .. mdev_modid_max_k] of mdev_modid_t;
 
   mdev_fw_t = record                   {information about one firmware}
     context_p: string_var_p_t;         {firmware name context hierarchy, NIL for top}

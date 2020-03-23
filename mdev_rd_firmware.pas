@@ -112,15 +112,15 @@ begin
   *   Check to make sure this ID hasn't already been assigned to a different
   *   module.
   }
-  if fw.modids[id] <> nil then begin   {some module already assigned this ID ?}
-    if fw.modids[id] = mod_p
+  if fw.modids[id].mod_p <> nil then begin {some module already assigned this ID ?}
+    if fw.modids[id].mod_p = mod_p
       then begin                       {already assigned to the target module ?}
         return;                        {everything as desired, nothing to do}
         end
       else begin                       {ID previously assigned to different module}
         sys_stat_set (mdev_subsys_k, mdev_stat_idused_k, stat); {ID previously used}
         sys_stat_parm_int (id, stat);  {module ID}
-        sys_stat_parm_vstr (fw.modids[id]^.name_p^, stat); {module name}
+        sys_stat_parm_vstr (fw.modids[id].mod_p^.name_p^, stat); {module name}
         hier_err_line_file (mr.rd, stat); {add line number and file name}
         return;
         end
@@ -132,7 +132,7 @@ begin
   }
   for ii := mdev_modid_min_k to mdev_modid_max_k do begin {scan module IDs this FW}
     if ii = id then next;              {duplicate of the same ID is OK}
-    if fw.modids[ii] = mod_p then begin {this module already has different ID ?}
+    if fw.modids[ii].mod_p = mod_p then begin {this module already has different ID ?}
       sys_stat_set (mdev_subsys_k, mdev_stat_dupid_k, stat); {duplicate ID}
       sys_stat_parm_int (ii, stat);    {previous ID}
       hier_err_line_file (mr.rd, stat); {add line number and file name}
@@ -142,7 +142,7 @@ begin
   {
   *   Assign the ID.
   }
-  fw.modids[id] := mod_p;              {assign the ID to this module}
+  fw.modids[id].mod_p := mod_p;        {assign the ID to this module}
   end;
 {
 ********************************************************************************

@@ -204,9 +204,13 @@ begin
 
       writeln ('':indent+2, 'Module IDs:');
       for id := mdev_modid_min_k to mdev_modid_max_k do begin
-        if obj_p^.modids[id] <> nil then begin
-          writeln ('':indent+4, id,
-            ': ', obj_p^.modids[id]^.name_p^.str:obj_p^.modids[id]^.name_p^.len);
+        if obj_p^.modids[id].mod_p <> nil then begin
+          write ('':indent+4, id, ': ',
+            obj_p^.modids[id].mod_p^.name_p^.str:obj_p^.modids[id].mod_p^.name_p^.len);
+          if not obj_p^.modids[id].used then begin
+           write (' (unused)');
+            end;
+          writeln;
           end;
         end;                           {back for next possible module ID}
       end;                             {end of sub-level information enabled}
