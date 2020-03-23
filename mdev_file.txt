@@ -1,5 +1,5 @@
                              MDEV File Format
-                              19 March 2020
+                              23 March 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -205,7 +205,7 @@ Commands
       Assigns a fixed ID to a module in this firmware.  Valid IDs are in
       the range of 1 to 255.
 
-      Without this command, modules area automatically assigned unique IDs
+      Without this command, modules are automatically assigned unique IDs
       within a firmware when it is determined that the module can be added
       to the firmware.  This command forces the module to have a
       particular ID.  Other modules will not be assigned this ID.  It is

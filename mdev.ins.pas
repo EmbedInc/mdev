@@ -8,6 +8,9 @@ const
   mdev_stat_unface_k = 2;              {undefined interface, no FW or module}
   mdev_stat_unface_fw_k = 3;           {undefined iface, ref to firmware}
   mdev_stat_unface_mod_k = 4;          {undefined iface, ref to module}
+  mdev_stat_badid_k = 5;               {invalid module ID}
+  mdev_stat_dupid_k = 6;               {duplicate module ID}
+  mdev_stat_idused_k = 7;              {module ID already in use}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 255;              {maximum valid module ID}

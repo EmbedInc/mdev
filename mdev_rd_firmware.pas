@@ -62,6 +62,91 @@ done_fw:
 {
 ********************************************************************************
 *
+*   Local subroutine READ_ID (MR, FW, STAT)
+*
+*   Read the remainder of the ID subcommand.  The command name has been read.
+*   STAT is assumed to be initialized to no error by the caller.
+}
+procedure read_id (                    {read ID subcommand}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  fw: mdev_fw_t;               {the firmware this subcommand is for}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; internal;
+
+var
+  id: sys_int_machine_t;               {module ID}
+  name: string_var32_t;                {module name}
+  ent_p: mdev_mod_ent_p_t;             {modules list entry for this module}
+  mod_p: mdev_mod_p_t;                 {pointer to this module}
+  ii: sys_int_machine_t;               {scratch integer and loop counter}
+
+begin
+  name.max := size_char(name.str);     {init local var string}
+
+  hier_read_int (mr.rd, id, stat);     {read the module ID}
+  if sys_error(stat) then return;
+  if                                   {ID is out of range ?}
+      (id < mdev_modid_min_k) or
+      (id > mdev_modid_max_k)
+      then begin
+    sys_stat_set (mdev_subsys_k, mdev_stat_badid_k, stat); {bad ID}
+    hier_err_line_file (mr.rd, stat);  {add line number and file name}
+    return;
+    end;
+
+  if not hier_read_tk_req (mr.rd, name, stat) {read the module name}
+    then return;
+
+  if not hier_read_eol (mr.rd, stat)   {not at end of line ?}
+    then return;
+{
+*   The command has been read and verified.  The following state is set:
+*
+*     ID  -  Module ID, has been range checked.
+*
+*     NAME  -  Module name.
+}
+  mdev_mod_get (mr.md_p^, name, ent_p); {get modules list entry for this module}
+  mod_p := ent_p^.mod_p;               {get pointer to the module}
+  {
+  *   Check to make sure this ID hasn't already been assigned to a different
+  *   module.
+  }
+  if fw.modids[id] <> nil then begin   {some module already assigned this ID ?}
+    if fw.modids[id] = mod_p
+      then begin                       {already assigned to the target module ?}
+        return;                        {everything as desired, nothing to do}
+        end
+      else begin                       {ID previously assigned to different module}
+        sys_stat_set (mdev_subsys_k, mdev_stat_idused_k, stat); {ID previously used}
+        sys_stat_parm_int (id, stat);  {module ID}
+        sys_stat_parm_vstr (fw.modids[id]^.name_p^, stat); {module name}
+        hier_err_line_file (mr.rd, stat); {add line number and file name}
+        return;
+        end
+      ;
+    end;
+  {
+  *   Check to make sure this module hasn't already been assigned a different ID
+  *   within this firmware.
+  }
+  for ii := mdev_modid_min_k to mdev_modid_max_k do begin {scan module IDs this FW}
+    if ii = id then next;              {duplicate of the same ID is OK}
+    if fw.modids[ii] = mod_p then begin {this module already has different ID ?}
+      sys_stat_set (mdev_subsys_k, mdev_stat_dupid_k, stat); {duplicate ID}
+      sys_stat_parm_int (ii, stat);    {previous ID}
+      hier_err_line_file (mr.rd, stat); {add line number and file name}
+      return;
+      end;
+    end;                               {back to check next ID}
+  {
+  *   Assign the ID.
+  }
+  fw.modids[id] := mod_p;              {assign the ID to this module}
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_RD_FIRMWARE (MR, STAT)
 *
 *   Read the remainder of the FIRMWARE command.  The command name has been read.
@@ -98,12 +183,12 @@ begin
   hier_read_block_start (mr.rd);       {enter the subordinate block}
   while hier_read_line (mr.rd, stat) do begin {back here each new subcommand}
     case hier_read_keyw_pick (mr.rd,
-        'PROVIDES',
+        'PROVIDES ID',
         stat) of
 
-1:    begin                            {PROVIDES}
+1:    begin                            {PROVIDES iface}
         if not hier_read_tk_req (mr.rd, tk, stat) {get interface name into TK}
-         then return;
+          then return;
         if not hier_read_eol (mr.rd, stat) then return;
 
         mdev_iface_get (mr.md_p^, tk, ifent_p); {get pointer to interface list entry}
@@ -111,8 +196,13 @@ begin
           mr.md_p^, ifent_p^.iface_p^, obj_p^);
         end;
 
+2:    begin                            {ID id modname}
+        read_id (mr, obj_p^, stat);    {read and process the ID subcommand}
+        end;
+
 otherwise
       return;                          {bad or no keyword, STAT already set}
       end;
+    if sys_error(stat) then return;
     end;                               {back for next subcommand}
   end;

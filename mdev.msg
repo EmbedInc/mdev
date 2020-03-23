@@ -13,3 +13,14 @@ msg err3
 msg err4
   lan english -def
     Interface "%p1s" is undefined, referenced by module "%p2s".
+msg err5
+  lan english -def
+    Invalid module ID %p1i encountered on line %p2i of file "%p3s".
+msg err6
+  lan english -def
+    Attempt to assign duplicate ID to module within firmware on line %p2i
+    of file "%p3s".  This module was previously assigned ID %p1i.
+msg err7
+  lan english -def
+    ID %p1i was previously assigned to module "%p2s".  Error occurred on
+    line %p3i of file "%p4s".
