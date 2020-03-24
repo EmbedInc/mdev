@@ -155,7 +155,8 @@ leave:                                 {req list allocated, function value set}
 *
 *   Local subroutine ASSIGN_ID (FW, MOD)
 *
-*   Assign the module ID for the module MOD within the firmware FW.
+*   Assign the module ID for the module MOD within the firmware FW.  The module
+*   is marked as used by this firmware.
 }
 procedure assign_id (                  {assign ID to module within firmware}
   in out  fw: mdev_fw_t;               {the firmware to assign ID within}
@@ -173,7 +174,10 @@ begin
 }
   open := 0;                           {init to no open ID found}
   for id := 1 to 255 do begin          {scan the possible module IDs}
-    if fw.modids[id].mod_p = addr(mod) then return; {this module already has ID ?}
+    if fw.modids[id].mod_p = addr(mod) then begin {this module already has ID ?}
+      fw.modids[id].used := true;      {make sure the module is marked as used}
+      return;
+      end;
     if                                 {found first open ID ?}
         (open = 0) and                 {not previously found ?}
         (fw.modids[id].mod_p = nil)    {this ID is open ?}
@@ -185,6 +189,7 @@ begin
 *   The module does not already have a ID assigned.  OPEN is the first open ID.
 }
   fw.modids[open].mod_p := addr(mod);  {assign first open ID to the module}
+  fw.modids[open].used := true;        {this module is used}
   end;
 {
 ********************************************************************************
