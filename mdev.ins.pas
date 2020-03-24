@@ -84,7 +84,7 @@ type
 
   mdev_fw_t = record                   {information about one firmware}
     context_p: string_var_p_t;         {firmware name context hierarchy, NIL for top}
-    name_p: string_var_p_t;            {firmware name, upper case}
+    name_p: string_var_p_t;            {firmware name}
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this firmware}
     templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
     files_p: mdev_file_ent_p_t;        {list of referenced files}
@@ -114,6 +114,13 @@ type
 procedure mdev_check (                 {check all data for errors}
   in out  md: mdev_t;                  {MDEV library use state}
   out     stat: sys_err_t);            {returned error status}
+  val_param; extern;
+
+procedure mdev_fw_find (               {find firmware by name}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      name: univ string_var_arg_t; {name of the firmware to find}
+  in      make: boolean;               {make FW descriptor if not exist}
+  out     fw_p: mdev_fw_p_t);          {returned pointer to FW desc, NIL if none and not make}
   val_param; extern;
 
 procedure mdev_lib_end (               {end library use instance, deallocate resources}
@@ -150,6 +157,10 @@ procedure mdev_resolve (               {resolve dependencies, add modules to FWs
 procedure mdev_show (                  {show all MDEV data}
   in      md: mdev_t;                  {library use instance to show data of}
   in      indent: sys_int_machine_t);  {indentation level, 0 for none}
+  val_param; extern;
+
+procedure mdev_show_fw (               {show a single firmware}
+  in      fw: mdev_fw_t);              {the firmware to show data of}
   val_param; extern;
 
 procedure mdev_show_list_dir (         {show directories list}

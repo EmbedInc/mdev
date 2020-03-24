@@ -2,7 +2,7 @@
 *
 *   Show all the MDEV structure as viewed from the current directory.
 }
-program mdev_build;
+program mdevshow;
 %include 'sys.ins.pas';
 %include 'util.ins.pas';
 %include 'string.ins.pas';

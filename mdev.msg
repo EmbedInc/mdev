@@ -24,3 +24,9 @@ msg err7
   lan english -def
     ID %p1i was previously assigned to module "%p2s".  Error occurred on
     line %p3i of file "%p4s".
+/*
+/*   Error messages written directly by top level programs.
+/*
+msg nofwname
+  lan english -def
+    No firmware name supplied, and none could be inferred.

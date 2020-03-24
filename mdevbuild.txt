@@ -1,0 +1,96 @@
+                            Program MDEVBUILD
+                              24 March 2020
+
+mdevbuild [options]
+
+This program aids the build process of any firmware that includes generic
+modular devices (MDEVs).  It reads all the MDEV files in the current
+directory and any directories referenced by those files.  Those may in
+turn reference other directories, which are also read, etc.  Interface
+dependencies are followed, and the modules and files to be added to the
+firmware are resolved.
+
+See the MDEV documentation file for a overview of the MDEV mechanism.  See
+the MDEV_FILE documentation file for details of the MDEV file format.
+
+The command line options are:
+
+  -FW fwname
+
+    Explicitly set the name of the firmware being built.  The name of the
+    firmware is resolved, in order from highest to lowest precedence,
+    according to:
+
+    1  -  This -FW command line option.
+
+    2  -  The contents of the FWNAME environment variable, unless this
+          variable is not present or its value is the empty string.
+
+    3  -  The single firmware mentioned in the MDEV file set, if there is
+          only one.
+
+    It is an error if all the above methods fail.
+
+This program writes or modifies a series of files in the current
+directory:
+
+  fwname_xxxx.DSPIC
+
+    These are files resulting from copying templates and modifying them
+    for the particulars of the firmware.  They are usually the top level
+    source files of MDEV modules, copied from QQQ_xxxx.DSPIC templates,
+    where xxxx is typically the MDEV module name.
+
+    If a target file already exists, it is not altered.
+
+  BUILD_MDEVS.BAT
+
+    This file is intended to be called from the BUILD_FWINIT.BAT build
+    script.  BUILD_MDEV.BAT generally grabs additional files necessary for
+    building the MDEV modules included in the firmware.  It is overwritten
+    each time.
+
+  fwname_MDEVS.INS.DSPIC
+
+    Include file intended to be referenced from the firmware main include
+    file.  Fwname_MDEVS.INS.DSPIC generally consists of commands to
+    include files with definitions and declarations that need to be global
+    within the firmware.
+
+    The CFG_module preprocessor constants are also defined in this file.
+    These constants give the 1-255 module IDs for the various MDEV modules
+    in the firmware.
+
+    This file is overwritten if previously existing.
+
+  MDEVS_INIT.INS.DSPIC
+
+    Include file intended to be referenced from the INIT firmware module.
+    This file contains executable code to run the configuration routines
+    of each MDEV module in the firmware.  The MDEV modules are initialized
+    in dependency order.  When a module is initialized, any modules it
+    depends on are guaranteed to have been previously initialized.
+
+    This file is overwritten if previously existing.
+
+  fwname.MLIST
+
+    This file is edited to include the object files of all MDEV modules in
+    this firmware.  The result is always sorted alphabetically by file
+    name.
+
+    This file is always read and re-written.  However, if all the MDEV
+    module object files are already listed, and in alphabetical order,
+    then no net change will have been made.
+
+  fwname_IDS.MDEV
+
+    This is a valid .MDEV file, and will therefore be read by future runs
+    of this program.  The file contains a FIRMARE command with ID
+    subcommands for each MDEV module included in the firmware.
+
+    This file is overwritten if it previously exists.  However, since the
+    file will have been read by this program, any assigned IDs will be
+    preserved.  In effect, this means that once a MDEV module is included
+    in the firmware, and thereby assigned an ID, that ID will not change
+    in the future as the mix of MDEV modules changes.

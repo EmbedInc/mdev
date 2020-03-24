@@ -4,6 +4,7 @@ define mdev_show_list_iface;
 define mdev_show_list_file;
 define mdev_show_list_mod;
 define mdev_show_list_fw;
+define mdev_show_fw;
 %include 'mdev2.ins.pas';
 {
 ********************************************************************************
@@ -160,6 +161,58 @@ begin
 {
 ********************************************************************************
 *
+*   Local subroutine SHOW_FW (FW, INDENT, SUB)
+*
+*   Show the firmware FW.
+}
+procedure show_fw (                    {show a single firmware}
+  in      fw: mdev_fw_t;               {the firmware to show}
+  in      indent: sys_int_machine_t;   {number of spaces to indent each line}
+  in      sub: boolean);               {show sub-level information}
+  val_param; internal;
+
+var
+  id: sys_int_machine_t;               {assigned ID of a module}
+
+begin
+  write ('':indent);
+  if fw.context_p^.len > 0 then begin
+    write ('(', fw.context_p^.str:fw.context_p^.len, ') ');
+    end;
+  writeln (fw.name_p^.str:fw.name_p^.len);
+
+  if sub then begin
+    writeln ('':indent+2, 'Provides:');
+    mdev_show_list_iface (fw.impl_p, indent+4, false);
+
+    writeln ('':indent+2, 'Template files:');
+    mdev_show_list_file (fw.templ_p, indent+4, false);
+
+    writeln ('':indent+2, 'Source files:');
+    mdev_show_list_file (fw.files_p, indent+4, false);
+
+    writeln ('':indent+2, 'Include files:');
+    mdev_show_list_file (fw.incl_p, indent+4, false);
+
+    writeln ('':indent+2, 'Modules supported:');
+    mdev_show_list_mod (fw.mod_p, indent+4, false);
+
+    writeln ('':indent+2, 'Module IDs:');
+    for id := mdev_modid_min_k to mdev_modid_max_k do begin
+      if fw.modids[id].mod_p <> nil then begin
+        write ('':indent+4, id, ': ',
+          fw.modids[id].mod_p^.name_p^.str:fw.modids[id].mod_p^.name_p^.len);
+        if not fw.modids[id].used then begin
+         write (' (unused)');
+          end;
+        writeln;
+        end;
+      end;                           {back for next possible module ID}
+    end;                             {end of sub-level information enabled}
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_SHOW_LIST_FW (LIST_P, INDENT, SUB)
 *
 *   Show contents of firmwares list.
@@ -172,49 +225,25 @@ procedure mdev_show_list_fw (          {show firmwares list}
 
 var
   ent_p: mdev_fw_ent_p_t;              {pointer to current list entry}
-  obj_p: mdev_fw_p_t;                  {pointer to object of this list entry}
-  id: sys_int_machine_t;               {assigned ID of a module}
 
 begin
   ent_p := list_p;                     {init to first list entry}
   while ent_p <> nil do begin          {scan the list}
-    obj_p := ent_p^.fw_p;              {get pointer to the actual object}
-
-    write ('':indent);
-    if obj_p^.context_p^.len > 0 then begin
-      write ('(', obj_p^.context_p^.str:obj_p^.context_p^.len, ') ');
-      end;
-    writeln (obj_p^.name_p^.str:obj_p^.name_p^.len);
-
-    if sub then begin
-      writeln ('':indent+2, 'Provides:');
-      mdev_show_list_iface (obj_p^.impl_p, indent+4, false);
-
-      writeln ('':indent+2, 'Template files:');
-      mdev_show_list_file (obj_p^.templ_p, indent+4, false);
-
-      writeln ('':indent+2, 'Source files:');
-      mdev_show_list_file (obj_p^.files_p, indent+4, false);
-
-      writeln ('':indent+2, 'Include files:');
-      mdev_show_list_file (obj_p^.incl_p, indent+4, false);
-
-      writeln ('':indent+2, 'Modules supported:');
-      mdev_show_list_mod (obj_p^.mod_p, indent+4, false);
-
-      writeln ('':indent+2, 'Module IDs:');
-      for id := mdev_modid_min_k to mdev_modid_max_k do begin
-        if obj_p^.modids[id].mod_p <> nil then begin
-          write ('':indent+4, id, ': ',
-            obj_p^.modids[id].mod_p^.name_p^.str:obj_p^.modids[id].mod_p^.name_p^.len);
-          if not obj_p^.modids[id].used then begin
-           write (' (unused)');
-            end;
-          writeln;
-          end;
-        end;                           {back for next possible module ID}
-      end;                             {end of sub-level information enabled}
-
+    show_fw (ent_p^.fw_p^, indent, sub); {show this firmware}
     ent_p := ent_p^.next_p;            {advance to next list entry}
     end;                               {back to show this new list entry}
+  end;
+{
+********************************************************************************
+*
+*   Subroutine MDEV_SHOW_FW (FW)
+*
+*   Show the information about the firmware FW on standard output.
+}
+procedure mdev_show_fw (               {show a single firmware}
+  in      fw: mdev_fw_t);              {the firmware to show data of}
+  val_param;
+
+begin
+  show_fw (fw, 0, true);
   end;
