@@ -176,6 +176,9 @@ var
 
 begin
   write ('':indent);
+  if indent <= 0 then begin
+    write ('Firmware ');
+    end;
   if fw.context_p^.len > 0 then begin
     write ('(', fw.context_p^.str:fw.context_p^.len, ') ');
     end;
@@ -207,8 +210,8 @@ begin
           end;
         writeln;
         end;
-      end;                           {back for next possible module ID}
-    end;                             {end of sub-level information enabled}
+      end;                             {back for next possible module ID}
+    end;                               {end of sub-level information enabled}
   end;
 {
 ********************************************************************************

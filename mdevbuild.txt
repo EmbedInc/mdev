@@ -1,5 +1,5 @@
                             Program MDEVBUILD
-                              24 March 2020
+                              25 March 2020
 
 mdevbuild [options]
 
@@ -30,6 +30,12 @@ The command line options are:
           only one.
 
     It is an error if all the above methods fail.
+
+  -V
+
+    Causes more verbose output.  Normally only new files or changes to
+    existing files are mentioned.  The -V option can be useful for
+    diagnosing problems with the build process.
 
 This program writes or modifies a series of files in the current
 directory:

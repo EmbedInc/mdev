@@ -7,6 +7,7 @@ program mdevbuild;
 %include 'file.ins.pas';
 %include 'hier.ins.pas';
 %include 'mdev.ins.pas';
+%include 'builddate.ins.pas';
 
 var
   fw:                                  {target firmware name}
@@ -15,6 +16,7 @@ var
   tk:                                  {scratch token}
     %include '(cog)lib/string32.ins.pas';
   fw_p: mdev_fw_p_t;                   {pointer to the firmware being built}
+  verbose: boolean;                    {show more actions on standard output}
 
   opt:                                 {upcased command line option}
     %include '(cog)lib/string_treename.ins.pas';
@@ -29,6 +31,7 @@ begin
 *   Initialize before reading the command line.
 }
   string_cmline_init;                  {init for reading the command line}
+  verbose := false;                    {init to normal output level}
 {
 *   Back here each new command line option.
 }
@@ -38,7 +41,7 @@ next_opt:
   sys_error_abort (stat, 'string', 'cmline_opt_err', nil, 0);
   string_upcase (opt);                 {make upper case for matching list}
   string_tkpick80 (opt,                {pick command line option name from list}
-    '-FW',
+    '-FW -V',
     pick);                             {number of keyword picked from list}
   case pick of                         {do routine for specific option}
 {
@@ -46,6 +49,12 @@ next_opt:
 }
 1: begin
   string_cmline_token (fw, stat);
+  end;
+{
+*   -V
+}
+2: begin
+  verbose := true;
   end;
 {
 *   Unrecognized command line option.
@@ -59,6 +68,10 @@ err_parm:                              {jump here on error with parameter}
   goto next_opt;                       {back for next command line option}
 
 done_opts:                             {done with all the command line options}
+  if verbose then begin
+    writeln ('Program MDEVBUILD, built on ', build_dtm_str);
+    end;
+
   if fw.len <= 0 then begin            {no firmware name explicitly given ?}
     sys_envvar_get (                   {read the FWNAME environment variable}
       string_v('FWNAME'(0)),           {variable name}
@@ -102,7 +115,10 @@ done_opts:                             {done with all the command line options}
     true,                              {create blank if not existing}
     fw_p);                             {returned pointer to the firmware}
 
-  mdev_show_fw (fw_p^);                {show details of this firmware}
+  if verbose then begin
+    writeln;
+    mdev_show_fw (fw_p^);              {show details of this firmware}
+    end;
 
   mdev_lib_end (md);                   {end use of the MDEV library}
   end.
