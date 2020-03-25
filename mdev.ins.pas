@@ -13,7 +13,7 @@ const
   mdev_stat_idused_k = 7;              {module ID already in use}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
-  mdev_modid_max_k = 255;              {maximum valid module ID}
+  mdev_modid_max_k = 254;              {maximum valid module ID}
 
 type
   mdev_mod_p_t = ^mdev_mod_t;          {points to descriptor for one MDEV module}
