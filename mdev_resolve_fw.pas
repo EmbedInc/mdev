@@ -164,7 +164,7 @@ procedure assign_id (                  {assign ID to module within firmware}
   val_param; internal;
 
 var
-  id: sys_int_machine_t;               {1-255 module ID}
+  id: sys_int_machine_t;               {1-254 module ID}
   open: sys_int_machine_t;             {first open ID}
 
 begin
@@ -173,7 +173,7 @@ begin
 *   first unused ID in case we need to assign a new one.
 }
   open := 0;                           {init to no open ID found}
-  for id := 1 to 255 do begin          {scan the possible module IDs}
+  for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan the possible module IDs}
     if fw.modids[id].mod_p = addr(mod) then begin {this module already has ID ?}
       fw.modids[id].used := true;      {make sure the module is marked as used}
       return;

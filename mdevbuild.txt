@@ -52,9 +52,9 @@ directory:
   BUILD_MDEVS.BAT
 
     This file is intended to be called from the BUILD_FWINIT.BAT build
-    script.  BUILD_MDEV.BAT generally grabs additional files necessary for
-    building the MDEV modules included in the firmware.  It is overwritten
-    each time.
+    script.  BUILD_MDEVS.BAT generally grabs additional files necessary
+    for building the MDEV modules included in the firmware.  It is
+    overwritten each time.
 
   fwname_MDEVS.INS.DSPIC
 
@@ -64,7 +64,7 @@ directory:
     within the firmware.
 
     The CFG_module preprocessor constants are also defined in this file.
-    These constants give the 1-255 module IDs for the various MDEV modules
+    These constants give the 1-254 module IDs for the various MDEV modules
     in the firmware.
 
     This file is overwritten if previously existing.

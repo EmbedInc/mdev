@@ -177,6 +177,10 @@ Commands
       file.  The text may be presented to the user wrapped to a new line
       at any space.
 
+    All interfaces must eventually be "defined", meaning a description is
+    provided.  It is an error if an interface is referenced, but not
+    eventually described somewhere in the MDEV file set.
+
   FIRMWARE [name ... name] name
 
     Start a subordinate block that pertains only to the named firmware.
@@ -203,7 +207,7 @@ Commands
     ID id modname
 
       Assigns a fixed ID to a module in this firmware.  Valid IDs are in
-      the range of 1 to 255.
+      the range of 1 to 254.
 
       Without this command, modules are automatically assigned unique IDs
       within a firmware when it is determined that the module can be added
@@ -218,7 +222,7 @@ Commands
       firmware.
 
       Each firmware has its own ID namespace.  This means that while each
-      firmware is limited to having 255 modules included, the global
+      firmware is limited to having 254 modules included, the global
       number of total available modules is unlimited.
 
   MODULE name
