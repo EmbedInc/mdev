@@ -29,6 +29,11 @@ call src_pas %srcdir% %libname%_read_dir
 call src_pas %srcdir% %libname%_read_file
 call src_pas %srcdir% %libname%_show
 call src_pas %srcdir% %libname%_show_list
+call src_pas %srcdir% %libname%_wr_build
+call src_pas %srcdir% %libname%_wr_ids
+call src_pas %srcdir% %libname%_wr_ins
+call src_pas %srcdir% %libname%_wr_mlist
+call src_pas %srcdir% %libname%_wr_templ
 
 call src_lib %srcdir% %libname%
 call src_msg %srcdir% %libname%

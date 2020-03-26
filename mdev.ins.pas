@@ -192,3 +192,39 @@ procedure mdev_show_list_mod (         {show MDEV modules list}
   in      indent: sys_int_machine_t;   {number of spaces to indent each line}
   in      sub: boolean);               {show sub-level information}
   val_param; extern;
+
+procedure mdev_wr_build (              {write BUILD_MDEVS scripts}
+  in      fw: mdev_fw_t;               {the target firmare}
+  in      verbose: boolean;            {show more than just changes}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;
+
+procedure mdev_wr_ids (                {write MDEV file with assigned module IDs}
+  in      fw: mdev_fw_t;               {the target firmare}
+  in      verbose: boolean;            {show more than just changes}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;
+
+procedure mdev_wr_ins_init (           {write initialization include file}
+  in      fw: mdev_fw_t;               {the target firmare}
+  in      verbose: boolean;            {show more than just changes}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;
+
+procedure mdev_wr_ins_main (           {write main MDEV include file}
+  in      fw: mdev_fw_t;               {the target firmare}
+  in      verbose: boolean;            {show more than just changes}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;
+
+procedure mdev_wr_mlist (              {edit MLIST file to include MDEV modules}
+  in      fw: mdev_fw_t;               {the target firmare}
+  in      verbose: boolean;            {show more than just changes}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;
+
+procedure mdev_wr_templ_list (         {write the source files modified from templates}
+  in      fw: mdev_fw_t;               {the target firmare}
+  in      verbose: boolean;            {show more than just changes}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;

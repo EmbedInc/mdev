@@ -120,5 +120,41 @@ done_opts:                             {done with all the command line options}
     mdev_show_fw (fw_p^);              {show details of this firmware}
     end;
 
+  mdev_wr_templ_list (                 {write the files from templates as appropriate}
+    fw_p^,                             {firmware descriptor}
+    verbose,
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
+  mdev_wr_build (                      {write BUILD_MDEVS script to build MDEV modules}
+    fw_p^,                             {firmware descriptor}
+    verbose,                           {selects more verbose output}
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
+  mdev_wr_ins_main (                   {write main MDEV include file}
+    fw_p^,                             {firmware descriptor}
+    verbose,                           {selects more verbose output}
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
+  mdev_wr_ins_init (                   {write include file for initializing MDEV modules}
+    fw_p^,                             {firmware descriptor}
+    verbose,                           {selects more verbose output}
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
+  mdev_wr_mlist (                      {edit the MLIST file to include all MDEV modules}
+    fw_p^,                             {firmware descriptor}
+    verbose,                           {selects more verbose output}
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
+  mdev_wr_ids (                        {write MDEV file for this FW with the assigned IDs}
+    fw_p^,                             {firmware descriptor}
+    verbose,                           {selects more verbose output}
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
   mdev_lib_end (md);                   {end use of the MDEV library}
   end.
