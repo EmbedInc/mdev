@@ -11,6 +11,7 @@ const
   mdev_stat_badid_k = 5;               {invalid module ID}
   mdev_stat_dupid_k = 6;               {duplicate module ID}
   mdev_stat_idused_k = 7;              {module ID already in use}
+  mdev_stat_ninsdspic_k = 8;           {not .ins.dspic file}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 254;              {maximum valid module ID}

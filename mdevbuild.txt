@@ -1,5 +1,5 @@
                             Program MDEVBUILD
-                              25 March 2020
+                              26 March 2020
 
 mdevbuild [options]
 
@@ -49,12 +49,18 @@ directory:
 
     If a target file already exists, it is not altered.
 
-  BUILD_MDEVS.BAT
+  BUILD_MDEVS_INIT.BAT
 
     This file is intended to be called from the BUILD_FWINIT.BAT build
-    script.  BUILD_MDEVS.BAT generally grabs additional files necessary
-    for building the MDEV modules included in the firmware.  It is
-    overwritten each time.
+    script.  BUILD_MDEVS_INIT.BAT generally grabs additional files
+    necessary for building the MDEV modules included in the firmware.  It
+    is overwritten each time.
+
+  BUILD_MDEVS.BAT
+
+    This file is intended to be called from the BUILD_FW.BAT script.
+    BUILD_MDEVS.BAT builds the source modules for all the MDEVs in the
+    firmware.
 
   fwname_MDEVS.INS.DSPIC
 

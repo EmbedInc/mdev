@@ -24,6 +24,9 @@ msg err7
   lan english -def
     ID %p1i was previously assigned to module "%p2s".  Error occurred on
     line %p3i of file "%p4s".
+msg err8
+  lan english -def
+    File name "%p1s" does not end in ".ins.dspic".
 /*
 /*   Error messages written directly by top level programs.
 /*
