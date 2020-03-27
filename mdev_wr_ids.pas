@@ -31,7 +31,7 @@ begin
   fnam.max := size_char(fnam.str);
 
   string_copy (fw.name_p^, fnam);      {init file name with the firmware name}
-  string_appends (fnam, '_ids.mdev'(0)); {set fixed part of the file name}
+  string_appends (fnam, '_ids.mdev'(0)); {add fixed part of the file name}
 
   file_open_write_text (               {open the file}
     fnam, '',                          {file name and suffix}

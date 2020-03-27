@@ -62,7 +62,7 @@ directory:
     BUILD_MDEVS.BAT builds the source modules for all the MDEVs in the
     firmware.
 
-  fwname_MDEVS.INS.DSPIC
+  fwname_MDEV.INS.DSPIC
 
     Include file intended to be referenced from the firmware main include
     file.  Fwname_MDEVS.INS.DSPIC generally consists of commands to
@@ -75,7 +75,7 @@ directory:
 
     This file is overwritten if previously existing.
 
-  MDEVS_INIT.INS.DSPIC
+  fwname_INIT_MDEV.INS.DSPIC
 
     Include file intended to be referenced from the INIT firmware module.
     This file contains executable code to run the configuration routines
