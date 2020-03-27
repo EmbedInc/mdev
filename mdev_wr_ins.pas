@@ -98,6 +98,41 @@ procedure mdev_wr_ins_init (           {write initialization include file}
   out     stat: sys_err_t);            {completion status}
   val_param;
 
+var
+  conn: file_conn_t;                   {connection to the file being written}
+  buf: string_var1024_t;               {one line output buffer}
+  fnam: string_treename_t;             {scratch file name}
+  id: sys_int_machine_t;               {module ID}
+
+label
+  abort;
+
+%include 'wbuf_local.ins.pas';
+
 begin
- sys_error_none (stat);                {init to no errors encountered}
- end;
+  buf.max := size_char(buf.str);       {init local var string}
+  fnam.max := size_char(fnam.str);
+
+  string_copy (fw.name_p^, fnam);      {init file name with the firmware name}
+  string_appends (fnam, '_init_mdev.ins.dspic'(0)); {add fixed part of file name}
+
+  file_open_write_text (               {open the file}
+    fnam, '',                          {file name and suffix}
+    conn,                              {returned connection to the file}
+    stat);
+  if sys_error(stat) then return;
+
+  for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
+    if not fw.modids[id].used then next; {this ID not used in this firmware ?}
+    string_vstring (buf,               {init fixed part of line}
+      '         gcall   '(0), -1);
+    string_append (buf, fw.modids[id].mod_p^.name_p^); {add module name}
+    string_appends (buf,               {finish the line}
+      '_cfg'(0));
+    wbuf;                              {write this line to the output file}
+    if sys_error(stat) then goto abort;
+    end;                               {back to do next ID}
+
+abort:                                 {file open, STAT all set}
+  file_close (conn);                   {close the file}
+  end;
