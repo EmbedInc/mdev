@@ -12,6 +12,8 @@ const
   mdev_stat_dupid_k = 6;               {duplicate module ID}
   mdev_stat_idused_k = 7;              {module ID already in use}
   mdev_stat_ninsdspic_k = 8;           {not .ins.dspic file}
+  mdev_stat_mlcmd_k = 9;               {bad MLIST file command}
+  mdev_stat_extra_k = 10;              {extra token found at end of line from file}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 254;              {maximum valid module ID}

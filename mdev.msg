@@ -27,6 +27,12 @@ msg err7
 msg err8
   lan english -def
     File name "%p1s" does not end in ".ins.dspic".
+msg err9
+  lan english -def
+    Unrecognized command "%p1s" on line %p2i of file "%p3s".
+msg err10
+  lan english -def
+    Extra token "%p1s" found on line %p2i of file "%p3s".
 /*
 /*   Error messages written directly by top level programs.
 /*
