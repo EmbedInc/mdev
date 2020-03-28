@@ -136,6 +136,8 @@ var
   buf: string_var1024_t;               {one line output buffer}
   fent_p: mdev_file_ent_p_t;           {pointer to one files list entry}
   ment_p: mdev_mod_ent_p_t;            {pointer to one modules list entry}
+  lnam: string_leafname_t;             {scratch file name}
+  tnam: string_treename_t;             {scratch full pathname}
 
 label
   abort;
@@ -143,7 +145,9 @@ label
 %include 'wbuf_local.ins.pas';
 
 begin
-  buf.max := size_char(buf.str);       {init local var string}
+  buf.max := size_char(buf.str);       {init local var strings}
+  lnam.max := size_char(lnam.str);
+  tnam.max := size_char(tnam.str);
 {
 *   Write BUILD_MDEVS_INIT.BAT
 }
@@ -157,11 +161,33 @@ begin
   while fent_p <> nil do begin         {scan the list}
     string_vstring (buf, 'call src_get_ins_dspic'(0), -1); {init line for this file}
     append_fnam (buf, fent_p^.file_p^.name_p^, stat); {append pathname tokens}
-     if sys_error(stat) then goto abort;
+    if sys_error(stat) then goto abort;
     wbuf;                              {write line for this file}
     if sys_error(stat) then goto abort;
     fent_p := fent_p^.next_p           {to next list entry}
     end;                               {back to process this new list entry}
+  {
+  *   Add entry for fwname_MDEV.INS.DSPIC file.
+  }
+  string_vstring (buf, 'call src_get_ins_dspic'(0), -1); {init line for this file}
+  string_copy (fw.name_p^, lnam);      {build local include file name}
+  string_appends (lnam, '_mdev.ins.dspic'(0));
+  string_treename (lnam, tnam);        {make full absolute pathname}
+  append_fnam (buf, tnam, stat);       {append pathname tokens}
+  if sys_error(stat) then goto abort;
+  wbuf;                                {write line for this file}
+  if sys_error(stat) then goto abort;
+  {
+  *   Add entry for fwname_INIT_MDEV.INS.DSPIC file.
+  }
+  string_vstring (buf, 'call src_get_ins_dspic'(0), -1); {init line for this file}
+  string_copy (fw.name_p^, lnam);      {build local include file name}
+  string_appends (lnam, '_init_mdev.ins.dspic'(0));
+  string_treename (lnam, tnam);        {make full absolute pathname}
+  append_fnam (buf, tnam, stat);       {append pathname tokens}
+  if sys_error(stat) then goto abort;
+  wbuf;                                {write line for this file}
+  if sys_error(stat) then goto abort;
 
   file_close (conn);                   {close the file}
 {
