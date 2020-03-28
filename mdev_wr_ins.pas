@@ -33,6 +33,7 @@ label
 begin
   buf.max := size_char(buf.str);       {init local var string}
   fnam.max := size_char(fnam.str);
+  sdir.max := size_char(sdir.str);
 
   string_copy (fw.name_p^, fnam);      {init file name with the firmware name}
   string_appends (fnam, '_mdev.ins.dspic'(0)); {add fixed part of the file name}
@@ -73,7 +74,7 @@ begin
 
   for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
     if not fw.modids[id].used then next; {this ID not used in this firmware ?}
-    string_vstring (buf, '/const cfg_'(0), -1); {init fixed part of line}
+    string_vstring (buf, '/const   cfg_'(0), -1); {init fixed part of line}
     string_append (buf, fw.modids[id].mod_p^.name_p^); {add module name}
     string_appends (buf, ' integer = '(0));
     string_append_intu (buf, id, 0);   {add the ID}
