@@ -1,5 +1,5 @@
                              MDEV File Format
-                              23 March 2020
+                              11 April 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -32,14 +32,14 @@ Syntax
 
     Comment lines are generally ignored and not mentioned in the remainder
     of this document.  However, it is legal for one or more comment lines
-    to be between any two lines, at the start of the file, or at the end
+    to be between any two lines, at the start of the file, and at the end
     of the file.
 
   Commands and parameters
 
     Data is specified by commands.  Commands start with the command name
     keyword, followed by parameters unique to that command.  All keywords,
-    which includeds command names, are case-insensitive.
+    which include command names, are case-insensitive.
 
     Parameters are separated from the command name and from each other by
     one or more blanks.
@@ -120,7 +120,8 @@ MDEV file set
 
   All MDEV files in a repository are read when that repository is
   referenced.  There is no need for a "master" MDEV file per repository,
-  for example.
+  for example, nor is there are means to avoid reading a particular MDEV
+  file if the directory it is in is referenced.
 
   It is intended that each MDEV module includes one MDEV file in the
   repository, along with its source code and other files.  This MDEV file
@@ -131,10 +132,11 @@ Commands
 
   MDEVDIR dir
 
-    Specifies directory DIR as possibly containing MDEV files.
-    Directories may be referenced multiple times from multiple files.
-    However, the files in each directory are read only once.  There is no
-    guarantee in what order unread directories are read.
+    Specifies directory DIR as possibly containing MDEV files. Directories
+    may be referenced multiple times from multiple files. However, the
+    files in each directory are read only once.  There is no guarantee in
+    what order unread directories are read, or the files within
+    directories are read.
 
   FILE name
 
@@ -143,8 +145,6 @@ Commands
     the directory containing the file this command is in.  Only absolute
     pathnames of files are used internally, and to determine whether two
     files are the same or not.
-
-    The subordinate commands are:
 
     REQUIRES fnam
 
@@ -161,8 +161,8 @@ Commands
 
     There may be multiple INTERFACE commands for the same interface.
     However, any optional additional information is taken from the first
-    INTERFACE command providing that information, and ignored from
-    subsequent INTERFACE commands.
+    INTERFACE command encountered that provides the information, and
+    ignored from subsequent INTERFACE commands.
 
     DESC
       text ... text
