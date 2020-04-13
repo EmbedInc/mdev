@@ -44,7 +44,7 @@ begin
   string_vstring (buf, 'firmware '(0), -1); {write FIRMWARE command}
   mdev_fw_name_path (fw, tk);          {get firmware full pathname}
   string_append (buf, tk);
-  wbuf;
+  wbuf (stat);
   if sys_error(stat) then goto abort;
 
   for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
@@ -54,7 +54,7 @@ begin
     string_append_intu (buf, id, 0);   {add ID}
     string_append1 (buf, ' ');
     string_append (buf, fw.modids[id].mod_p^.name_p^); {add module name}
-    wbuf;                              {write the line}
+    wbuf (stat);                       {write the line}
     if sys_error(stat) then goto abort;
     end;
 

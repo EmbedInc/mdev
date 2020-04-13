@@ -146,7 +146,7 @@ otherwise
     if mlist.str_p = nil then exit;    {hit end of list ?}
     string_vstring (buf, 'ADDMOD '(0), -1); {command name}
     string_append (buf, mlist.str_p^); {add the module name}
-    wbuf;
+    wbuf (stat);
     if sys_error(stat) then goto abort;
     end;                               {back for next list entry}
 

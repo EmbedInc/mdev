@@ -134,6 +134,7 @@ procedure mdev_wr_build (              {write BUILD_MDEVS scripts}
 var
   conn: file_conn_t;                   {connection to the file being written}
   buf: string_var1024_t;               {one line output buffer}
+  outlist: string_list_t;              {list for writing sorted lines to file}
   fent_p: mdev_file_ent_p_t;           {pointer to one files list entry}
   ment_p: mdev_mod_ent_p_t;            {pointer to one modules list entry}
   lnam: string_leafname_t;             {scratch file name}
@@ -142,7 +143,7 @@ var
 label
   abort;
 
-%include 'wbuf_local.ins.pas';
+%include 'wlist_local.ins.pas';
 
 begin
   buf.max := size_char(buf.str);       {init local var strings}
@@ -156,14 +157,14 @@ begin
     conn,                              {returned connection to the file}
     stat);
   if sys_error(stat) then return;
+  outlist_start;                       {start use of the output lines list}
 
   fent_p := fw.files_p;                {init to first list entry}
   while fent_p <> nil do begin         {scan the list}
     string_vstring (buf, 'call src_get_ins_dspic'(0), -1); {init line for this file}
     append_fnam (buf, fent_p^.file_p^.name_p^, stat); {append pathname tokens}
     if sys_error(stat) then goto abort;
-    wbuf;                              {write line for this file}
-    if sys_error(stat) then goto abort;
+    lbuf;                              {write line to the list}
     fent_p := fent_p^.next_p           {to next list entry}
     end;                               {back to process this new list entry}
   {
@@ -175,8 +176,7 @@ begin
   string_treename (lnam, tnam);        {make full absolute pathname}
   append_fnam (buf, tnam, stat);       {append pathname tokens}
   if sys_error(stat) then goto abort;
-  wbuf;                                {write line for this file}
-  if sys_error(stat) then goto abort;
+  lbuf;                                {write line to the list}
   {
   *   Add entry for fwname_INIT_MDEV.INS.DSPIC file.
   }
@@ -186,9 +186,11 @@ begin
   string_treename (lnam, tnam);        {make full absolute pathname}
   append_fnam (buf, tnam, stat);       {append pathname tokens}
   if sys_error(stat) then goto abort;
-  wbuf;                                {write line for this file}
-  if sys_error(stat) then goto abort;
+  lbuf;                                {write line to the list}
 
+  wsort (stat);                        {write sorted lines to file}
+  if sys_error(stat) then goto abort;
+  outlist_end;                         {done with output lines list}
   file_close (conn);                   {close the file}
 {
 *   Write BUILD_MDEVS.BAT.
@@ -198,16 +200,20 @@ begin
     conn,                              {returned connection to the file}
     stat);
   if sys_error(stat) then return;
+  outlist_start;                       {start use of the output lines list}
 
   ment_p := fw.mod_p;                  {init to first modules list entry}
   while ment_p <> nil do begin         {scan the list of modules in this FW}
     string_vstring (                   {init this line to the fixed part}
       buf, 'call src_dspic %srcdir% %fwname%_'(0), -1);
     string_append (buf, ment_p^.mod_p^.name_p^); {add module name}
-    wbuf;                              {write the line for this module}
-    if sys_error(stat) then goto abort;
+    lbuf;                              {write line to the list}
     ment_p := ment_p^.next_p;          {to next list entry}
     end;                               {back to process this new list entry}
+
+  wsort (stat);                        {write sorted lines to file}
+  if sys_error(stat) then goto abort;
+  outlist_end;                         {done with output lines list}
 
 abort:                                 {file open, STAT all set}
   file_close (conn);                   {close the file}

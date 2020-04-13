@@ -1,12 +1,13 @@
 {
 ********************************************************************************
 *
-*   Internal subroutine WBUF
+*   Internal subroutine WBUF (STAT)
 *
 *   Write the current output buffer contents to the file.  Reset the output
-*   buffer to empty.  STAT is set.
+*   buffer to empty.
 }
-procedure wbuf;
+procedure wbuf (                       {write buffer to file, reset buf to empty}
+  out     stat: sys_err_t);            {completion status}
   val_param; internal;
 
 begin

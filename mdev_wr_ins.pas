@@ -20,6 +20,7 @@ procedure mdev_wr_ins_main (           {write main MDEV include file}
 var
   conn: file_conn_t;                   {connection to the file being written}
   buf: string_var1024_t;               {one line output buffer}
+  outlist: string_list_t;              {list for writing sorted lines to file}
   fnam: string_treename_t;             {scratch file name}
   sdir: string_treename_t;             {source directory portable pathname}
   fent_p: mdev_file_ent_p_t;           {pointer to files list entry}
@@ -28,7 +29,7 @@ var
 label
   abort;
 
-%include 'wbuf_local.ins.pas';
+%include 'wlist_local.ins.pas';
 
 begin
   buf.max := size_char(buf.str);       {init local var string}
@@ -46,6 +47,7 @@ begin
 {
 *   Write the include commands.
 }
+  outlist_start;                       {start use of the output lines list}
   string_vstring (sdir, '(cog)source'(0), -1); {save top level source directory}
 
   fent_p := fw.incl_p;                 {init to first include file in list}
@@ -62,14 +64,17 @@ begin
         end
       ;
     string_append1 (buf, '"');         {add closing quote after file name}
-    wbuf;                              {write this line to the output file}
-    if sys_error(stat) then goto abort;
+    lbuf;                              {write this line to list}
     fent_p := fent_p^.next_p;          {to next include file list entry}
     end;                               {back to process this new entry}
+
+  wsort (stat);                        {write sorted lines to file}
+  if sys_error(stat) then goto abort;
+  outlist_end;                         {done with output lines list}
 {
 *   Define the CFG_xxx constants.
 }
-  wbuf;                                {write blank line before constants}
+  wbuf (stat);                         {write blank line before constants}
   if sys_error(stat) then goto abort;
 
   for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
@@ -78,7 +83,7 @@ begin
     string_append (buf, fw.modids[id].mod_p^.name_p^); {add module name}
     string_appends (buf, ' integer = '(0));
     string_append_intu (buf, id, 0);   {add the ID}
-    wbuf;                              {write this line to the output file}
+    wbuf (stat);                       {write this line to the output file}
     if sys_error(stat) then goto abort;
     end;                               {back to do next ID}
 
@@ -130,7 +135,7 @@ begin
     string_append (buf, fw.modids[id].mod_p^.name_p^); {add module name}
     string_appends (buf,               {finish the line}
       '_cfg'(0));
-    wbuf;                              {write this line to the output file}
+    wbuf (stat);                       {write this line to the output file}
     if sys_error(stat) then goto abort;
     end;                               {back to do next ID}
 
