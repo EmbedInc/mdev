@@ -5,31 +5,6 @@ define mdev_fw_find;
 {
 ********************************************************************************
 *
-*   Local subroutine FW_NAME_SPLIT (NAME, CONT, FWNAME)
-*
-*   Split the hierarchical firmware name NAME into its context and bare name
-*   components.  These are returned in CONT and FWNAME, respectively.
-}
-procedure fw_name_split (              {get components of composite firmware name}
-  in      name: univ string_var_arg_t; {full composite firmare name}
-  in out  cont: univ string_var_arg_t; {returned hierarchy context}
-  in out  fwname: univ string_var_arg_t); {returned bare firmware name}
-  val_param; internal;
-
-var
-  p: string_index_t;                   {input name parse index}
-
-begin
-  p := name.len;                       {init to last character in name string}
-  while (p >= 1) and then (name.str[p] <> ' ') do begin {back to find last blank}
-    p := p - 1;
-    end;
-  string_substr (name, p+1, name.len, fwname); {extract just the leaf name}
-  string_substr (name, 1, p-1, cont);  {extract context part of full name}
-  end;
-{
-********************************************************************************
-*
 *   Local subroutine FW_SEARCH (MD, CONT, FWNAME, ENT_P)
 *
 *   Return ENT_P pointing to the global firmwares list entry for the firmware
@@ -136,7 +111,7 @@ begin
   cont.max := size_char(cont.str);     {init local var strings}
   fwname.max := size_char(fwname.str);
 
-  fw_name_split (name, cont, fwname);  {get context and bare firmware name}
+  mdev_fw_name_split (name, cont, fwname); {get context and bare firmware name}
 
   fw_search (md, cont, fwname, ent_p); {look for the firmware in existing list}
   if ent_p <> nil then return;         {found the firmare list entry ?}
@@ -173,7 +148,7 @@ begin
   cont.max := size_char(cont.str);     {init local var strings}
   fwname.max := size_char(fwname.str);
 
-  fw_name_split (name, cont, fwname);  {get context and bare firmware name}
+  mdev_fw_name_split (name, cont, fwname); {get context and bare firmware name}
 
   fw_search (md, cont, fwname, ent_p); {look for the firmware in existing list}
   if ent_p <> nil then begin           {found existing list entry ?}

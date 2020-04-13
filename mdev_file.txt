@@ -1,5 +1,5 @@
                              MDEV File Format
-                              11 April 2020
+                              13 April 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -31,7 +31,7 @@ Syntax
     files.
 
     Comment lines are generally ignored and not mentioned in the remainder
-    of this document.  However, it is legal for one or more comment lines
+    of this document.  However, it is legal for zero or more comment lines
     to be between any two lines, at the start of the file, and at the end
     of the file.
 

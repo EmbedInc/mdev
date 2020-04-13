@@ -11,10 +11,10 @@ program mdevbuild;
 
 var
   fw:                                  {target firmware name}
-    %include '(cog)lib/string32.ins.pas';
+    %include '(cog)lib/string8192.ins.pas';
+  fwpath:                              {full pathname of the firmware being built}
+    %include '(cog)lib/string8192.ins.pas';
   md: mdev_t;                          {MDEV library state}
-  tk:                                  {scratch token}
-    %include '(cog)lib/string32.ins.pas';
   fw_p: mdev_fw_p_t;                   {pointer to the firmware being built}
   verbose: boolean;                    {show more actions on standard output}
 
@@ -72,21 +72,6 @@ done_opts:                             {done with all the command line options}
     writeln ('Program MDEVBUILD, built on ', build_dtm_str);
     end;
 
-  if fw.len <= 0 then begin            {no firmware name explicitly given ?}
-    sys_envvar_get (                   {read the FWNAME environment variable}
-      string_v('FWNAME'(0)),           {variable name}
-      tk,                              {returned value}
-      stat);
-    if sys_error(stat)
-      then begin                       {didn't get envvar value}
-        fw.len := 0;
-        end
-      else begin                       {envvar value is in TK}
-        string_copy (tk, fw);          {copy value to firmware name}
-        end
-      ;
-    end;
-
   mdev_lib_start (md, util_top_mem_context); {start use of the MDEV library}
   mdev_read_dirs (                     {read MDEV file set}
     md,                                {MDEV library state}
@@ -94,24 +79,15 @@ done_opts:                             {done with all the command line options}
     stat);
   sys_error_abort (stat, '', '', nil, 0);
 
-  mdev_resolve (md);                   {resolve dependencies, add modules to FWs}
-
-  if fw.len <= 0 then begin            {firmware name still not set ?}
-    if                                 {exactly one firmware in MDEV data ?}
-        (md.fw_p <> nil) and then      {at least one firmware ?}
-        (md.fw_p^.next_p = nil)        {no second firmware ?}
-        then begin
-      string_copy (md.fw_p^.fw_p^.name_p^, fw); {get name of the single firmware}
-      end;
-    end;
-
-  if fw.len <= 0 then begin            {no firmware name given or implied ?}
+  if not mdev_fw_name_make (md, fw, fwpath) then begin {make full firmware pathname}
     sys_message_bomb ('mdev', 'nofwname', nil, 0);
     end;
 
+  mdev_resolve (md);                   {resolve dependencies, add modules to FWs}
+
   mdev_fw_find (                       {find the target FW in the MDEV data}
     md,                                {MDEV data top descriptor}
-    fw,                                {firmware name}
+    fwpath,                            {firmware name}
     true,                              {create blank if not existing}
     fw_p);                             {returned pointer to the firmware}
 

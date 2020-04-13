@@ -2,6 +2,7 @@ mdev_check.obj
 mdev_dir.obj
 mdev_file.obj
 mdev_fw.obj
+mdev_fw_name.obj
 mdev_iface.obj
 mdev_lib.obj
 mdev_module.obj

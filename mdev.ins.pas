@@ -119,6 +119,24 @@ procedure mdev_check (                 {check all data for errors}
   out     stat: sys_err_t);            {returned error status}
   val_param; extern;
 
+function mdev_fw_name_make (           {make full firmware name string, applies defaults}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in      fw: univ string_var_arg_t;   {input FW name, may be empty to full path}
+  in out  fwpath: univ string_var_arg_t) {returned full firmware name path}
+  :boolean;                            {success, FWPATH contains valid firmware name}
+  val_param; extern;
+
+procedure mdev_fw_name_path (          {get full pathname of a particular firmware}
+  in      fw: mdev_fw_t;               {firmware to get full pathname of}
+  in out  fwpath: univ string_var_arg_t); {returned full firmware pathname}
+  val_param; extern;
+
+procedure mdev_fw_name_split (         {split firmware pathname into context and name}
+  in      fwpath: univ string_var_arg_t; {full firmware pathname}
+  in out  context: univ string_var_arg_t; {returned context part of FW name}
+  in out  name: univ string_var_arg_t); {returned bare firmware name}
+  val_param; extern;
+
 procedure mdev_fw_find (               {find firmware by name}
   in out  md: mdev_t;                  {MDEV library use state}
   in      name: univ string_var_arg_t; {name of the firmware to find}

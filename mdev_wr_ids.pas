@@ -19,6 +19,7 @@ var
   conn: file_conn_t;                   {connection to the file being written}
   buf: string_var1024_t;               {one line output buffer}
   fnam: string_leafname_t;             {file name}
+  tk: string_var1024_t;                {scratch token}
   id: sys_int_machine_t;               {module ID within this firmware}
 
 label
@@ -29,6 +30,7 @@ label
 begin
   buf.max := size_char(buf.str);       {init local var string}
   fnam.max := size_char(fnam.str);
+  tk.max := size_char(tk.str);
 
   string_copy (fw.name_p^, fnam);      {init file name with the firmware name}
   string_appends (fnam, '_ids.mdev'(0)); {add fixed part of the file name}
@@ -40,7 +42,8 @@ begin
   if sys_error(stat) then return;
 
   string_vstring (buf, 'firmware '(0), -1); {write FIRMWARE command}
-  string_append (buf, fw.name_p^);
+  mdev_fw_name_path (fw, tk);          {get firmware full pathname}
+  string_append (buf, tk);
   wbuf;
   if sys_error(stat) then goto abort;
 

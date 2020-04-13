@@ -1,5 +1,5 @@
                             Program MDEVBUILD
-                              26 March 2020
+                              13 April 2020
 
 mdevbuild [options]
 
@@ -17,19 +17,24 @@ The command line options are:
 
   -FW fwname
 
-    Explicitly set the name of the firmware being built.  The name of the
-    firmware is resolved, in order from highest to lowest precedence,
-    according to:
+    Explicitly set the name of the firmware being built.  FWNAME can be
+    the full pathname of the firmware, just the bare name of the firmare,
+    the empty string, or not provided at all.  The default is the empty
+    string.
 
-    1  -  This -FW command line option.
+    If FWNAME is the empty string, then the value of the environment
+    variable FWNAME is used.  If the FWNAME environment variable does not
+    exist, then FWNAME is left the empty string.
 
-    2  -  The contents of the FWNAME environment variable, unless this
-          variable is not present or its value is the empty string.
+    If the resulting name (whether from FWNAME directory or the FWNAME
+    environment variable) is a full firmware pathname (has more than one
+    component), then that is used directly as the full firmware name.
 
-    3  -  The single firmware mentioned in the MDEV file set, if there is
-          only one.
+    When the resulting name is just a bare firmware name, then there must
+    be only one firmware defined by the MDEV file set with that bare name.
 
-    It is an error if all the above methods fail.
+    When the resulting name is the empty string, then there must be
+    exactly one firmware defined by the MDEV file set.
 
   -V
 
