@@ -220,7 +220,13 @@ procedure mdev_wr_build (              {write BUILD_MDEVS scripts}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
 
-procedure mdev_wr_ids (                {write MDEV file with assigned module IDs}
+procedure mdev_wr_ids (                {write MDEV and H files with assigned module IDs}
+  in      fw: mdev_fw_t;               {the target firmare}
+  in      verbose: boolean;            {show more than just changes}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;
+
+procedure mdev_wr_ids_cs (             {write CS file with info about this firmare}
   in      fw: mdev_fw_t;               {the target firmare}
   in      verbose: boolean;            {show more than just changes}
   out     stat: sys_err_t);            {completion status}

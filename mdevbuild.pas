@@ -126,7 +126,13 @@ done_opts:                             {done with all the command line options}
     stat);
   sys_error_abort (stat, '', '', nil, 0);
 
-  mdev_wr_ids (                        {write MDEV file for this FW with the assigned IDs}
+  mdev_wr_ids (                        {write MDEV and H files for this FW with the assigned IDs}
+    fw_p^,                             {firmware descriptor}
+    verbose,                           {selects more verbose output}
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
+  mdev_wr_ids_cs (                     {write CS file with info about this firmware}
     fw_p^,                             {firmware descriptor}
     verbose,                           {selects more verbose output}
     stat);
