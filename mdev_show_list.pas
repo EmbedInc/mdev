@@ -139,6 +139,9 @@ begin
         mdev_show_desc (obj_p^.desc_p^, indent+4);
         end;
 
+      writeln ('':indent+2, 'Config entry: "',
+        obj_p^.cfgent_p^.str:obj_p^.cfgent_p^.len, '"');
+
       writeln ('':indent+2, 'Uses:');
       mdev_show_list_iface (obj_p^.uses_p, indent+4, false);
 

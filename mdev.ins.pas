@@ -14,6 +14,7 @@ const
   mdev_stat_ninsdspic_k = 8;           {not .ins.dspic file}
   mdev_stat_mlcmd_k = 9;               {bad MLIST file command}
   mdev_stat_extra_k = 10;              {extra token found at end of line from file}
+  mdev_stat_ent2_k = 11;               {module entry point name already set}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 254;              {maximum valid module ID}
@@ -64,6 +65,7 @@ type
 
   mdev_mod_t = record                  {information about one module}
     name_p: string_var_p_t;            {points to module name, mixed case}
+    cfgent_p: string_var_p_t;          {configuration routine entry point}
     desc_p: string_var_p_t;            {points to description string}
     uses_p: mdev_iface_ent_p_t;        {list of interfaces required by this module}
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this module}

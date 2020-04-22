@@ -33,6 +33,10 @@ msg err9
 msg err10
   lan english -def
     Extra token "%p1s" found on line %p2i of file "%p3s".
+msg err11
+  lan english -def
+    Module entry point name previously set.  Error encountered on line
+    %p2i of file "%p3s".
 /*
 /*   Error messages written directly by top level programs.
 /*

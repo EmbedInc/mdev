@@ -1,5 +1,5 @@
                              MDEV File Format
-                              13 April 2020
+                              22 April 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -237,6 +237,19 @@ Commands
       Provides descriptive text for the particular module.  See the
       INTERFACE > DESC command description earlier in this file for
       details.
+
+    CFGENT name
+
+      Explicitly sets the name of the configuration routine entry point.
+      The default is the module name followed by "_cfg".
+
+      The entry point name is the full name actually in the linker symbol
+      table.  If the routine is written in a high level language that
+      implicitly "decorates" subroutine names, then the decorated name
+      must be given here.  For example, the XC16 compiler prepends
+      function names with "_".  If the configuration function is written
+      in XC16 and named "xyz_config", then NAME here must be set to
+      "_xyz_config".
 
     USES iface [shared]
 

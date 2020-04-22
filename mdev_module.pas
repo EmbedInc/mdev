@@ -34,7 +34,8 @@ begin
   string_alloc (                       {allocate mem for name string}
     name.len, md.mem_p^, false, obj_p^.name_p);
   string_copy (name, obj_p^.name_p^);  {set name}
-  obj_p^.desc_p := nil;                {init remaining descriptor fields}
+  obj_p^.cfgent_p := nil;              {init remaining descriptor fields}
+  obj_p^.desc_p := nil;
   obj_p^.uses_p := nil;
   obj_p^.impl_p := nil;
   obj_p^.templ_p := nil;

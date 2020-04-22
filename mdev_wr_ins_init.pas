@@ -43,9 +43,7 @@ begin
     if not fw.modids[id].used then next; {this ID not used in this firmware ?}
     string_vstring (buf,               {init fixed part of line}
       '         gcall   '(0), -1);
-    string_append (buf, fw.modids[id].mod_p^.name_p^); {add module name}
-    string_appends (buf,               {finish the line}
-      '_cfg'(0));
+    string_append (buf, fw.modids[id].mod_p^.cfgent_p^); {config routine name}
     wbuf (stat);                       {write this line to the output file}
     if sys_error(stat) then goto abort;
     end;                               {back to do next ID}

@@ -61,7 +61,7 @@ otherwise
 {
 ********************************************************************************
 *
-*   Local subroutine MOD_PROV (MR, STAT)
+*   Local subroutine MOD_PROV (MR, MOD, STAT)
 }
 procedure mod_prov (                   {process PROVIDES command after the keyword}
   in out  mr: mdev_read_t;             {MDEV file reading state}
@@ -124,7 +124,7 @@ done_iface:                            {done updating interface}
 {
 ********************************************************************************
 *
-*   Local subroutine MOD_TEMPL (MR, STAT)
+*   Local subroutine MOD_TEMPL (MR, MOD, STAT)
 }
 procedure mod_templ (                  {process TEMPLATE command after the keyword}
   in out  mr: mdev_read_t;             {MDEV file reading state}
@@ -161,7 +161,7 @@ begin
 {
 ********************************************************************************
 *
-*   Local subroutine MOD_SOURCE (MR, STAT)
+*   Local subroutine MOD_SOURCE (MR, MOD, STAT)
 }
 procedure mod_source (                 {process SOURCE command after the keyword}
   in out  mr: mdev_read_t;             {MDEV file reading state}
@@ -198,7 +198,7 @@ begin
 {
 ********************************************************************************
 *
-*   Local subroutine MOD_INCLUDE (MR, STAT)
+*   Local subroutine MOD_INCLUDE (MR, MOD, STAT)
 }
 procedure mod_include (                {process INCLUDE command after the keyword}
   in out  mr: mdev_read_t;             {MDEV file reading state}
@@ -235,6 +235,41 @@ begin
 {
 ********************************************************************************
 *
+*   Local subroutine MOD_CFGENT (MR, MOD, STAT)
+*
+*   Process the CFGENT subcommand.  The command name has been read.
+}
+procedure mod_cfgent (                 {process CFGENT command after keyword}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  mod: mdev_mod_t;             {the module}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; internal;
+
+var
+  name: string_var80_t;                {entry point name}
+
+begin
+  name.max := size_char(name.str);     {init local var string}
+
+  if mod.cfgent_p <> nil then begin    {entry point name already set ?}
+    sys_stat_set (mdev_subsys_k, mdev_stat_ent2_k, stat);
+    hier_err_line_file (mr.rd, stat);  {add line number and file name}
+    return;
+    end;
+
+  if not hier_read_tk_req (mr.rd, name, stat) then return; {get entry point name}
+  if not hier_read_eol (mr.rd, stat) then return; {verify end of line}
+
+  string_alloc (                       {alloc mem for entry point name string}
+    name.len,                          {string length}
+    mr.md_p^.mem_p^,                   {memory context}
+    false,                             {won't individually deallocate this}
+    mod.cfgent_p);                     {returned pointer to the new string}
+  string_copy (name, mod.cfgent_p^);   {fill in the new string}
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_RD_MODULE (MR, STAT)
 *
 *   Read the remainder of the MODULE command.  The command name has been read.
@@ -262,7 +297,7 @@ begin
   hier_read_block_start (mr.rd);       {go down into MODULE block}
   while hier_read_line (mr.rd, stat) do begin {back here each new subcommand}
     case hier_read_keyw_pick (mr.rd,   {get subcommand keyword, pick from list}
-        'DESC USES PROVIDES TEMPLATE SOURCE INCLUDE',
+        'DESC USES PROVIDES TEMPLATE SOURCE INCLUDE CFGENT',
         stat) of
 
 1:    begin                            {DESC}
@@ -290,7 +325,25 @@ begin
         mod_include (mr, obj_p^, stat); {process rest of command line}
         end;
 
+7:    begin                            {CFGENT}
+        mod_cfgent (mr, obj_p^, stat); {process rest of command line}
+        end;
+
       end;                             {end of subcommand cases}
     if sys_error(stat) then return;
     end;                               {back to get next subcommand}
+{
+*   The MODULE block has ended.  Set the configuration entry point name to its
+*   default unless it has been explicitly set.
+}
+  if obj_p^.cfgent_p = nil then begin  {configuration entry point not set ?}
+    string_copy (obj_p^.name_p^, tk);  {init entry point name with module name}
+    string_appends (tk, '_cfg'(0));    {make the full default entry point name}
+    string_alloc (                     {alloc mem for entry point name string}
+      tk.len,                          {string length}
+      mr.md_p^.mem_p^,                 {memory context}
+      false,                           {won't individually deallocate this}
+      obj_p^.cfgent_p);                {returned pointer to the new string}
+    string_copy (tk, obj_p^.cfgent_p^); {fill in the new string}
+    end;
   end;
