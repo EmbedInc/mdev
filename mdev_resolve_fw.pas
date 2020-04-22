@@ -34,18 +34,15 @@ begin
 {
 ********************************************************************************
 *
-*   Function MODULE_SUPPORTED (MOD, FW, MODSTART_P)
+*   Function MODULE_SUPPORTED (MOD, FW)
 *
-*   Check whether the module MOD can be supported by the firmware FW.
-*   MODSTART_P is the pointer to the modules list entry for this firmware where
-*   to start checking provided interfaces at.  The function returns TRUE iff the
-*   firmware and its modules starting at MODSTART_P provide all the interfaces
-*   required by the module MOD.
+*   Check whether the module MOD can be supported by the firmware FW.  The
+*   function returns TRUE iff the firmware and its modules provide all the
+*   interfaces required by the module MOD.
 }
 function module_supported (            {check whether module supported by firmware}
   in      mod: mdev_mod_t;             {the module to check for support for}
-  in      fw: mdev_fw_t;               {firmare that might support the module}
-  in      modstart_p: mdev_mod_ent_p_t) {first FW module to check providing ifaces}
+  in      fw: mdev_fw_t)               {firmare that might support the module}
   :boolean;                            {the module is supported}
   val_param; internal;
 
@@ -134,7 +131,7 @@ begin
 *   Run thru each of the modules in the firmware and check the interfaces they
 *   provide for matching required interfaces.
 }
-  modent_p := modstart_p;              {init to first module list entry to look at}
+  modent_p := fw.mod_p;                {init to first module list entry to look at}
   while modent_p <> nil do begin       {back here each new module in FW list}
     ifcent_p := modent_p^.mod_p^.impl_p; {init to first implemented interfaces list entry}
     while ifcent_p <> nil do begin     {scan the interfaces implemented by this module}
@@ -204,48 +201,61 @@ procedure mdev_resolve_fw (            {resolve modules for specific firmware}
   val_param;
 
 var
-  modstart_p: mdev_mod_ent_p_t;        {first mod to check for providing ifaces}
   modent_p: mdev_mod_ent_p_t;          {points to current global modules list entry}
   mod_p: mdev_mod_p_t;                 {points to current module being checked}
-  newmod: boolean;                     {a new module was added to the firmware}
+  newmod: boolean;                     {new module added to the firmware this pass}
   newent_p: mdev_mod_ent_p_t;          {points to newly added FW modules list entry}
+  link_p: mdev_mod_ent_pp_t;           {end of list pointer to link next new entry to}
 
 label
-  next_mod, rescan;
+  next_mod;
 
 begin
 {
-*   Resolve the nested module/interface dependencies and make a flat list of the
-*   modules this firmware can support.
+*   Resolve LINK_P, which is the pointer to the end of list link entry.  The end
+*   of list pointer is always NIL.
 }
-rescan:                                {back here to check again after module(s) added}
-  newmod := false;                     {init to no new module added this pass}
-  modstart_p := fw.mod_p;              {init where to start looking for interfaces}
+  link_p := addr(fw.mod_p);            {init to start of list pointer}
+  while link_p^ <> nil do begin        {scan forwards until find end of list}
+    link_p := addr(link_p^^.next_p);
+    end;
+{
+*   Resolve the nested module/interface dependencies and make a flat list of the
+*   modules this firmware can support.  All known modules are scanned, checking
+*   whether the firmware and its existing modules provide the required
+*   interfaces.  If so, the module is added to the end of the list.  The
+*   resulting modules list will therefore be in dependency order.  Modules in
+*   the FW list will only depend on module preceeding them in the list.
+}
+  repeat                               {back here each new pass thru globabl modules list}
+    newmod := false;                   {init to no new module added this pass}
 
-  modent_p := md.mod_p;                {init to first global modules list entry}
-  while modent_p <> nil do begin       {back here each new module to test}
-    mod_p := modent_p^.mod_p;          {get pointer to the module to check}
-    if module_in_fw (mod_p^, fw)       {this module is already in the firmware ?}
-      then goto next_mod;
-    if not module_supported (mod_p^, fw, modstart_p) {this module not supported ?}
-      then goto next_mod;
-    {
-    *   Add the module MOD_P^ to the firmware.
-    }
-    util_mem_grab (                    {allocate memory for the new modules list entry}
-      sizeof(newent_p^), md.mem_p^, false, newent_p);
-    newent_p^.mod_p := mod_p;          {fill in the list entry}
-    newent_p^.next_p := fw.mod_p;      {link to start of modules list for this FW}
-    fw.mod_p := newent_p;
+    modent_p := md.mod_p;              {init to first global modules list entry}
+    while modent_p <> nil do begin     {back here each new global module to check}
+      mod_p := modent_p^.mod_p;        {get pointer to the module to check}
+      if module_in_fw (mod_p^, fw)     {this module is already in the firmware ?}
+        then goto next_mod;
+      if not module_supported (mod_p^, fw) {this module not supported ?}
+        then goto next_mod;
+      {
+      *   The module pointed to by MOD_P is not already in the firmware, but all
+      *   its required interfaces are supported.  Add this module to the end of
+      *   the firmware's module list.
+      }
+      util_mem_grab (                  {allocate memory for the new modules list entry}
+        sizeof(newent_p^), md.mem_p^, false, newent_p);
+      newent_p^.mod_p := mod_p;        {fill in the list entry}
+      newent_p^.next_p := nil;         {this entry will be at end of list}
+      link_p^ := newent_p;             {link to end of list}
+      link_p := addr(newent_p^.next_p); {update pointer to end of list link}
 
-    assign_id (fw, mod_p^);            {assign ID to this module within this FW}
-    newmod := true;                    {indicate a module was added}
+      assign_id (fw, mod_p^);          {assign ID to this module within this FW}
+      newmod := true;                  {indicate a module was added this pass}
 
-next_mod:                              {done with this module, on to next}
-    modent_p := modent_p^.next_p       {to next global modules list entry}
-    end;                               {back to check this new module}
-
-  if newmod then goto rescan;          {new module added, support could have changed ?}
+  next_mod:                            {done with this module, on to next}
+      modent_p := modent_p^.next_p;    {to next global modules list entry}
+      end;                             {back to check this new module}
+    until not newmod;                  {try again until no new module added}
 {
 *   Resolve the nested file dependencies and make flat dependencies lists.
 }

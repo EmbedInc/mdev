@@ -200,7 +200,7 @@ begin
     writeln ('':indent+2, 'Include files:');
     mdev_show_list_file (fw.incl_p, indent+4, false);
 
-    writeln ('':indent+2, 'Modules supported:');
+    writeln ('':indent+2, 'Modules supported, dependency order:');
     mdev_show_list_mod (fw.mod_p, indent+4, false);
 
     writeln ('':indent+2, 'Module IDs:');

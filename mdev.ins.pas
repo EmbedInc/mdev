@@ -22,6 +22,7 @@ const
 type
   mdev_mod_p_t = ^mdev_mod_t;          {points to descriptor for one MDEV module}
   mdev_mod_ent_p_t = ^mdev_mod_ent_t;  {points to one entry in list of modules}
+  mdev_mod_ent_pp_t = ^mdev_mod_ent_p_t;
   mdev_dir_p_t = ^mdev_dir_t;          {points to descriptor for one directory}
   mdev_dir_ent_p_t = ^mdev_dir_ent_t;  {points to one entry in list of directories}
   mdev_file_p_t = ^mdev_file_t;        {points to descriptor of one file}
@@ -94,7 +95,7 @@ type
     templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
     files_p: mdev_file_ent_p_t;        {list of referenced files}
     incl_p: mdev_file_ent_p_t;         {list of include files}
-    mod_p: mdev_mod_ent_p_t;           {list of modules this firmware can support}
+    mod_p: mdev_mod_ent_p_t;           {list of modules FW can support, in hierarchy order}
     modids: mdev_modids_t;             {module for each possible module ID}
     end;
 

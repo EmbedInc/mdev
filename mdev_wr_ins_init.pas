@@ -19,7 +19,8 @@ var
   conn: file_conn_t;                   {connection to the file being written}
   buf: string_var1024_t;               {one line output buffer}
   fnam: string_treename_t;             {scratch file name}
-  id: sys_int_machine_t;               {module ID}
+  ent_p: mdev_mod_ent_p_t;             {pointer to current modules list entry}
+  mod_p: mdev_mod_p_t;                 {pointer to current module}
 
 label
   abort;
@@ -39,14 +40,16 @@ begin
     stat);
   if sys_error(stat) then return;
 
-  for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
-    if not fw.modids[id].used then next; {this ID not used in this firmware ?}
+  ent_p := fw.mod_p;                   {init to first modules list entry}
+  while ent_p <> nil do begin          {scan the list}
+    mod_p := ent_p^.mod_p;             {get pointer to this module}
     string_vstring (buf,               {init fixed part of line}
       '         gcall   '(0), -1);
-    string_append (buf, fw.modids[id].mod_p^.cfgent_p^); {config routine name}
+    string_append (buf, mod_p^.cfgent_p^); {config routine name}
     wbuf (stat);                       {write this line to the output file}
     if sys_error(stat) then goto abort;
-    end;                               {back to do next ID}
+    ent_p := ent_p^.next_p;            {advance to next list entry}
+    end;                               {back to process this new list entry}
 
 abort:                                 {file open, STAT all set}
   file_close (conn);                   {close the file}
