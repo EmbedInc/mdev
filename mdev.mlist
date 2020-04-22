@@ -21,6 +21,7 @@ mdev_show.obj
 mdev_show_list.obj
 mdev_wr_build.obj
 mdev_wr_ids.obj
-mdev_wr_ins.obj
+mdev_wr_ins_init.obj
+mdev_wr_ins_main.obj
 mdev_wr_mlist.obj
 mdev_wr_templ.obj
