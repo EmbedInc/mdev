@@ -34,15 +34,18 @@ begin
 {
 ********************************************************************************
 *
-*   Function MODULE_SUPPORTED (MOD, FW)
+*   Function MODULE_SUPPORTED (MOD, FW, MODSUPP_P)
 *
 *   Check whether the module MOD can be supported by the firmware FW.  The
 *   function returns TRUE iff the firmware and its modules provide all the
-*   interfaces required by the module MOD.
+*   interfaces required by the module MOD.  Only the modules in the FW modules
+*   list up to the list entry at MODSUPP_P will be check for providing the
+*   necessary interfaces.  MODSUPP_P of NIL means to check no modules.
 }
 function module_supported (            {check whether module supported by firmware}
   in      mod: mdev_mod_t;             {the module to check for support for}
-  in      fw: mdev_fw_t)               {firmare that might support the module}
+  in      fw: mdev_fw_t;               {firmare that might support the module}
+  in      modsupp_p: mdev_mod_ent_p_t) {last mod to check for providing interfaces}
   :boolean;                            {the module is supported}
   val_param; internal;
 
@@ -131,16 +134,19 @@ begin
 *   Run thru each of the modules in the firmware and check the interfaces they
 *   provide for matching required interfaces.
 }
-  modent_p := fw.mod_p;                {init to first module list entry to look at}
-  while modent_p <> nil do begin       {back here each new module in FW list}
-    ifcent_p := modent_p^.mod_p^.impl_p; {init to first implemented interfaces list entry}
-    while ifcent_p <> nil do begin     {scan the interfaces implemented by this module}
-      check_iface (ifcent_p^.iface_p^); {check this interface for satisfying a requirement}
-      if nreq <= 0 then goto leave;    {all required interfaces provide ?}
-      ifcent_p := ifcent_p^.next_p;    {to next provided interface in the list}
-      end;                             {back to check next provided interface}
-    modent_p := modent_p^.next_p;      {to next module in this firmware}
-    end;                               {back to check interfaces provided by this module}
+  if modsupp_p <> nil then begin       {allowed to check any modules at all ?}
+    modent_p := fw.mod_p;              {init to first module list entry to look at}
+    while modent_p <> nil do begin     {back here each new module in FW list}
+      ifcent_p := modent_p^.mod_p^.impl_p; {init to first implemented interfaces list entry}
+      while ifcent_p <> nil do begin   {scan the interfaces implemented by this module}
+        check_iface (ifcent_p^.iface_p^); {check this interface for satisfying a requirement}
+        if nreq <= 0 then goto leave;  {all required interfaces provide ?}
+        ifcent_p := ifcent_p^.next_p;  {to next provided interface in the list}
+        end;                           {back to check next provided interface}
+      if modent_p = modsupp_p then exit; {this is last module to check ?}
+      modent_p := modent_p^.next_p;    {to next module in this firmware}
+      end;                             {back to check interfaces provided by this module}
+    end;
 
   module_supported := false;           {not all required interfaces were provided}
 
@@ -205,19 +211,23 @@ var
   mod_p: mdev_mod_p_t;                 {points to current module being checked}
   newmod: boolean;                     {new module added to the firmware this pass}
   newent_p: mdev_mod_ent_p_t;          {points to newly added FW modules list entry}
-  link_p: mdev_mod_ent_pp_t;           {end of list pointer to link next new entry to}
+  modlast_p: mdev_mod_ent_p_t;         {last entry in FW modules list, NIL = list empty}
+  modsupp_p: mdev_mod_ent_p_t;         {last FW mods list entry to consider for support}
 
 label
   next_mod;
 
 begin
 {
-*   Resolve LINK_P, which is the pointer to the end of list link entry.  The end
-*   of list pointer is always NIL.
+*   Resolve MODLAST_P, which is the pointer to the last modules list entry of
+*   this firmware.  If the modules list is empty, then this pointer is set to
+*   NIL.
 }
-  link_p := addr(fw.mod_p);            {init to start of list pointer}
-  while link_p^ <> nil do begin        {scan forwards until find end of list}
-    link_p := addr(link_p^^.next_p);
+  modlast_p := fw.mod_p;               {init to first list entry}
+  if modlast_p <> nil then begin       {the list is not empty ?}
+    while modlast_p^.next_p <> nil do begin {not at the last list entry ?}
+      modlast_p := modlast_p^.next_p;  {go to next list entry}
+      end;
     end;
 {
 *   Resolve the nested module/interface dependencies and make a flat list of the
@@ -229,13 +239,14 @@ begin
 }
   repeat                               {back here each new pass thru globabl modules list}
     newmod := false;                   {init to no new module added this pass}
+    modsupp_p := modlast_p;            {set limit to scan for interfaces this pass}
 
     modent_p := md.mod_p;              {init to first global modules list entry}
     while modent_p <> nil do begin     {back here each new global module to check}
       mod_p := modent_p^.mod_p;        {get pointer to the module to check}
       if module_in_fw (mod_p^, fw)     {this module is already in the firmware ?}
         then goto next_mod;
-      if not module_supported (mod_p^, fw) {this module not supported ?}
+      if not module_supported (mod_p^, fw, modsupp_p) {this module not supported ?}
         then goto next_mod;
       {
       *   The module pointed to by MOD_P is not already in the firmware, but all
@@ -246,8 +257,16 @@ begin
         sizeof(newent_p^), md.mem_p^, false, newent_p);
       newent_p^.mod_p := mod_p;        {fill in the list entry}
       newent_p^.next_p := nil;         {this entry will be at end of list}
-      link_p^ := newent_p;             {link to end of list}
-      link_p := addr(newent_p^.next_p); {update pointer to end of list link}
+
+      if modlast_p = nil
+        then begin                     {this will be first list entry}
+          fw.mod_p := newent_p;
+          end
+        else begin                     {adding to end of existing list}
+          modlast_p^.next_p := newent_p;
+          end
+        ;
+      modlast_p := newent_p;           {update pointer to last list entry}
 
       assign_id (fw, mod_p^);          {assign ID to this module within this FW}
       newmod := true;                  {indicate a module was added this pass}
