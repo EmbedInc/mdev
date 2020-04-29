@@ -6,8 +6,8 @@ define mdev_wr_ins_init;
 *
 *   Subroutine MDEV_WR_INS_INIT (FW, VERBOSE, STAT)
 *
-*   Write the fwname_INIT_MDEV.INS.DSPIC include file.  This file contains code
-*   to initialize all the MDEV modules.
+*   Write the fwname_CONFIG_MDEVS.INS.DSPIC include file.  This file contains
+*   code to initialize all the MDEV modules.
 }
 procedure mdev_wr_ins_init (           {write initialization include file}
   in      fw: mdev_fw_t;               {the target firmare}
@@ -32,7 +32,7 @@ begin
   fnam.max := size_char(fnam.str);
 
   string_copy (fw.name_p^, fnam);      {init file name with the firmware name}
-  string_appends (fnam, '_init_mdev.ins.dspic'(0)); {add fixed part of file name}
+  string_appends (fnam, '_config_mdevs.ins.dspic'(0)); {add fixed part of file name}
 
   file_open_write_text (               {open the file}
     fnam, '',                          {file name and suffix}

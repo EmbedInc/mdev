@@ -178,11 +178,11 @@ begin
   if sys_error(stat) then goto abort;
   lbuf;                                {write line to the list}
   {
-  *   Add entry for fwname_INIT_MDEV.INS.DSPIC file.
+  *   Add entry for fwname_CONFIG_MDEVS.INS.DSPIC file.
   }
   string_vstring (buf, 'call src_get_ins_dspic'(0), -1); {init line for this file}
   string_copy (fw.name_p^, lnam);      {build local include file name}
-  string_appends (lnam, '_init_mdev.ins.dspic'(0));
+  string_appends (lnam, '_config_mdevs.ins.dspic'(0));
   string_treename (lnam, tnam);        {make full absolute pathname}
   append_fnam (buf, tnam, stat);       {append pathname tokens}
   if sys_error(stat) then goto abort;
