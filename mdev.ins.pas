@@ -15,6 +15,9 @@ const
   mdev_stat_mlcmd_k = 9;               {bad MLIST file command}
   mdev_stat_extra_k = 10;              {extra token found at end of line from file}
   mdev_stat_ent2_k = 11;               {module entry point name already set}
+  mdev_stat_nbnosuff_k = 12;           {file name has no suffix}
+  mdev_stat_nbnofnam_k = 13;           {no file name left after suffix removed}
+  mdev_stat_nbunsuff_k = 14;           {unrecognized file name suffix}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 254;              {maximum valid module ID}
@@ -31,6 +34,12 @@ type
   mdev_iface_ent_p_t = ^mdev_iface_ent_t; {points to one entry in list of interfaces}
   mdev_fw_p_t = ^mdev_fw_t;            {points to descriptor for one firmware}
   mdev_fw_ent_p_t = ^mdev_fw_ent_t;    {points to one entry in list of firmwares}
+
+  mdev_suffix_k_t = (                  {file name suffix IDs}
+    mdev_suffix_none_k,                {no suffix found}
+    mdev_suffix_unknown_k,             {unrecognized file name suffix}
+    mdev_suffix_dspic_k,               {.DSPIC}
+    mdev_suffix_xc16_k);               {.XC16}
 
   mdev_iface_t = record                {information about one interface}
     name_p: string_var_p_t;            {points to the interface name, case-sensitive}
@@ -73,6 +82,7 @@ type
     templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
     files_p: mdev_file_ent_p_t;        {list of referenced files}
     incl_p: mdev_file_ent_p_t;         {list of include files}
+    build_p: mdev_file_ent_p_t;        {list of files to build and link binaries of}
     end;
 
   mdev_mod_ent_t = record              {one entry in list of modules}

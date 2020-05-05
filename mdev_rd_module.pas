@@ -270,6 +270,39 @@ begin
 {
 ********************************************************************************
 *
+*   Local subroutine MOD_BUILD (MR, MOD, STAT)
+*
+*   Process the BUILD subcommand.  The command name has been read.
+}
+procedure mod_build (                  {process BUILD command after keyword}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  mod: mdev_mod_t;             {the module}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; internal;
+
+var
+  fnam: string_treename_t;             {name of file to be built}
+  ent_p: mdev_file_ent_p_t;            {pointer to global files list entry}
+
+begin
+  fnam.max := size_char(fnam.str);     {init local var string}
+
+  if not hier_read_tk_req (mr.rd, fnam, stat) then return; {get file name}
+  if not hier_read_eol (mr.rd, stat) then return; {verify end of line}
+
+  mdev_file_get (                      {get/make pointer to global files list entry}
+    mr.md_p^,                          {MDEV library use state}
+    fnam,                              {file name}
+    ent_p);                            {returned pointer to global list entry}
+
+  mdev_file_in_list (                  {make sure this file in build list}
+    mr.md_p^,                          {MDEV library use state}
+    ent_p^.file_p^,                    {descriptor of the file}
+    mod.build_p);                      {pointer to list to make sure file is in}
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_RD_MODULE (MR, STAT)
 *
 *   Read the remainder of the MODULE command.  The command name has been read.
@@ -297,7 +330,7 @@ begin
   hier_read_block_start (mr.rd);       {go down into MODULE block}
   while hier_read_line (mr.rd, stat) do begin {back here each new subcommand}
     case hier_read_keyw_pick (mr.rd,   {get subcommand keyword, pick from list}
-        'DESC USES PROVIDES TEMPLATE SOURCE INCLUDE CFGENT',
+        'DESC USES PROVIDES TEMPLATE SOURCE INCLUDE CFGENT BUILD',
         stat) of
 
 1:    begin                            {DESC}
@@ -329,21 +362,11 @@ begin
         mod_cfgent (mr, obj_p^, stat); {process rest of command line}
         end;
 
+8:    begin                            {BUILD}
+        mod_build (mr, obj_p^, stat);  {process rest of command line}
+        end;
+
       end;                             {end of subcommand cases}
     if sys_error(stat) then return;
     end;                               {back to get next subcommand}
-{
-*   The MODULE block has ended.  Set the configuration entry point name to its
-*   default unless it has been explicitly set.
-}
-  if obj_p^.cfgent_p = nil then begin  {configuration entry point not set ?}
-    string_copy (obj_p^.name_p^, tk);  {init entry point name with module name}
-    string_appends (tk, '_cfg'(0));    {make the full default entry point name}
-    string_alloc (                     {alloc mem for entry point name string}
-      tk.len,                          {string length}
-      mr.md_p^.mem_p^,                 {memory context}
-      false,                           {won't individually deallocate this}
-      obj_p^.cfgent_p);                {returned pointer to the new string}
-    string_copy (tk, obj_p^.cfgent_p^); {fill in the new string}
-    end;
   end;

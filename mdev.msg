@@ -37,6 +37,15 @@ msg err11
   lan english -def
     Module entry point name previously set.  Error encountered on line
     %p2i of file "%p3s".
+msg err12
+  lan english -def
+    File "%p1s" has no suffix to identify its type.
+msg err13
+  lan english -def
+    No generic file name left after suffix is removed from "%p1s".
+msg err14
+  lan english -def
+    The file name suffix "%p1s" of file "%p2s" is not recognized.
 /*
 /*   Error messages written directly by top level programs.
 /*

@@ -1,5 +1,5 @@
                              MDEV File Format
-                              22 April 2020
+                                4 May 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -333,3 +333,32 @@ Commands
       using this module.  This file would typically be included from the
       firmware's main project include file.  FILENAME is interpreted
       relative to the directory containing this MDEV file.
+
+    BUILD filename
+
+      Explicitly indicates a file that must be built.  This file will be
+      assembled or compiled, and the resulting binary made available to
+      the linker.
+
+      When no BUILD commands are given for a module, then the single
+      buildable file <firmware>_<module>.dspic is assumed.  When one or
+      more BUILD commands are used, then only those files mentioned by
+      BUILD commands will be built.
+
+      How a file is built depends on the file name suffix.  The following
+      suffixes are supported:
+
+        .dspic
+
+          Assembler source for the 16 bit PICs and dsPICs.  This file is
+          first run thru the Embed PIC preprocessor (PREPIC) to make a .as
+          file.  This .as file is then assembled using the Microchip
+          XC16-ASM assembler.
+
+        .xc16
+
+          C source for the 16 bit PICs and dsPICs.  This file is compiled
+          with the Microchip XC16 compiler.
+
+      The relocatable binary resulting from assembling or compiling the
+      file will be added to the .mlist file.

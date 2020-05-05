@@ -37,6 +37,14 @@ procedure mdev_file_in_list (          {insure file is in list}
   in out  list_p: mdev_file_ent_p_t);  {pointer to the list}
   val_param; extern;
 
+procedure mdev_file_suffix (           {get suffix, gnam, and directory of file}
+  in      tnam: univ string_var_arg_t; {full input treename}
+  in out  dir: univ string_var_arg_t;  {directory containing file}
+  in out  gnam: univ string_var_arg_t; {generic name of file, without suffix}
+  out     suff: mdev_suffix_k_t;       {ID for the file name suffix}
+  out     stat: sys_err_t);            {completion status}
+  val_param; extern;
+
 procedure mdev_fw_get (                {get a specific firmware list entry}
   in out  md: mdev_t;                  {MDEV library use state}
   in      name: univ string_var_arg_t; {namespace hierarchy and firmware name}

@@ -60,10 +60,76 @@ var
   id: sys_int_machine_t;               {assigned module ID}
 
 label
-  abort, err_atline;
+  abort, abort2, err_atline;
 
 %include 'wbuf_local.ins.pas';
+{
+****************************************
+*
+*   Private subroutine ADD_MODULE (FW, MOD, STAT)
+*
+*   Add the relocatable binarie from the module MOD to the MLIST list.
+}
+procedure add_module (                 {add binaries from a module}
+  in      fw: mdev_fw_t;               {the firmware being built}
+  in      mod: mdev_mod_t;             {the module to add binaries from}
+  out     stat: sys_err_t);
+  val_param; internal;
 
+var
+  ent_p: mdev_file_ent_p_t;            {buildable files list entry}
+  dir: string_treename_t;              {directory containing buildable file}
+  gnam: string_leafname_t;             {buildable file leafname without suffix}
+  suff: mdev_suffix_k_t;               {file name suffix ID}
+
+begin
+  dir.max := size_char(dir.str);       {init local var strings}
+  gnam.max := size_char(gnam.str);
+
+  if mod.build_p = nil then begin      {no explicit files, use default module name}
+    string_copy (fw.name_p^, buf);     {init list entry with firmware name}
+    string_append1 (buf, '_');
+    string_append (buf, fw.modids[id].mod_p^.name_p^); {add MDEV module name}
+    in_list (mlist, buf);              {make sure this module in list}
+    return;
+    end;
+{
+*   This module has a explicitly list of buildable files.  We assume each
+*   results in a binary to add to the list.
+}
+  ent_p := mod.build_p;                {init to first buildable files list entry}
+  while ent_p <> nil do begin          {scan the list}
+    if ent_p^.file_p^.name_p^.len > 0 then begin {non-empty file name ?}
+      mdev_file_suffix (               {find components of buildable file name}
+        ent_p^.file_p^.name_p^,        {file treename to find components of}
+        dir,                           {directory containing the file}
+        gnam,                          {generic file name, without suffix}
+        suff,                          {file name suffix ID}
+        stat);
+      if sys_error(stat) then return;
+      case suff of                     {what kind of file is it ?}
+mdev_suffix_dspic_k: begin             {.DSPIC}
+          string_copy (gnam, buf);     {use generic file name directly}
+          end;
+mdev_suffix_xc16_k: begin              {.XC16}
+          string_copy (gnam, buf);     {init with generic file name}
+          string_appends (buf, '_c');  {add suffix for coming from C source}
+          end;
+otherwise                              {unrecognized suffix}
+        writeln ('*** INTERNAL ERROR in MDEV_WR_MLIST > ADD_MODULE ***');
+         writeln ('  File name suffix ID ', ord(suff), ' is not implemented.');
+        sys_bomb;
+        end;
+      in_list (mlist, buf);            {make sure this module is in the list}
+      end;                             {end of filename not empty case}
+    ent_p := ent_p^.next_p;            {advance to next buildable files list entry}
+    end;                               {back to process this new list entry}
+  end;
+{
+****************************************
+*
+*   Start of main routine.
+}
 begin
   buf.max := size_char(buf.str);       {init local var string}
   fnam.max := size_char(fnam.str);
@@ -101,7 +167,12 @@ begin
 1:    begin                            {ADDMOD objectfile}
         string_token (buf, p, tk, stat); {get the module file name}
         if sys_error(stat) then goto abort;
-        string_list_str_add (mlist, tk); {add the module file name to the list}
+        if tk.len >= 3 then begin
+          if (tk.str[tk.len-1] = '.') and (tk.str[tk.len] = 'o') then begin
+            tk.len := tk.len - 2;      {remove ".o" suffix}
+            end;
+          end;
+        in_list (mlist, tk);           {make sure this module is in the list}
         end;
 otherwise
       sys_stat_set (mdev_subsys_k, mdev_stat_mlcmd_k, stat);
@@ -121,12 +192,13 @@ otherwise
 }
   for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan the assigned IDs}
     if not fw.modids[id].used then next; {no module included with this ID}
-    string_copy (fw.name_p^, buf);     {init list entry with firmware name}
-    string_append1 (buf, '_');
-    string_append (buf, fw.modids[id].mod_p^.name_p^); {add MDEV module name}
-    in_list (mlist, buf);              {make sure this module in list}
+    add_module (fw, fw.modids[id].mod_p^, stat); {add binaries from this module}
+    if sys_error(stat) then goto abort2;
     end;                               {back for next ID}
-
+{
+*   Sort the list.  This way there are no net changes to the file when the
+*   content doesn't change.
+}
   string_list_sort (                   {sort the modules list}
     mlist,                             {the list to sort}
     [ string_comp_lcase_k,             {lower case right before upper same}
@@ -152,6 +224,8 @@ otherwise
 
 abort:                                 {file open, STAT all set}
   file_close (conn);                   {close the file}
+
+abort2:                                {modules list exists}
   string_list_kill (mlist);            {delete list, deallocate resources}
   return;
 

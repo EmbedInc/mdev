@@ -156,6 +156,9 @@ begin
 
       writeln ('':indent+2, 'Include files:');
       mdev_show_list_file (obj_p^.incl_p, indent+4, false);
+
+      writeln ('':indent+2, 'Files to build:');
+      mdev_show_list_file (obj_p^.build_p, indent+4, false);
       end;
 
     ent_p := ent_p^.next_p;            {advance to next list entry}
