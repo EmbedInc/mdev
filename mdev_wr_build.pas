@@ -14,7 +14,7 @@ define mdev_wr_build;
 }
 procedure append_names (               {append names of PATH to STR}
   in out  str: univ string_var_arg_t;  {the string to append path parts to}
-  in      path: string_treename_t;     {pathname to append parts of}
+  in      path: univ string_treename_t; {pathname to append parts of}
   in out  stat: sys_err_t);            {completion status, assumed no err on entry}
   val_param; internal;
 
@@ -62,12 +62,14 @@ wrleaf:                                {done with previous components, append le
 {
 ********************************************************************************
 *
-*   Local subroutine APPEND_FNAM (STR, FNAM, STAT)
+*   Local subroutine APPEND_INS_DSPIC (STR, FNAM, STAT)
 *
 *   Append the source-specific parts of the filename FNAM to the string STR.
-*   Each pathname part within (cog)source will be written as a separate token.
+*   FNAM must be a .ins.dspic file.   Each pathname part within (cog)source will
+*   be written as a separate token.  The leafname will be written without the
+*   .ins.dspic suffix.
 }
-procedure append_fnam (                {append pathname parts to string}
+procedure append_ins_dspic (           {append pathname parts of .ins.dspic file}
   in out  str: univ string_var_arg_t;  {the string to append to}
   in     fnam: univ string_var_arg_t;  {the full expanded pathname}
   in out  stat: sys_err_t);            {completion status, assumed no err on entry}
@@ -216,8 +218,8 @@ begin
 
   fent_p := fw.files_p;                {init to first list entry}
   while fent_p <> nil do begin         {scan the list}
-    string_vstring (buf, 'call src_get_ins_dspic'(0), -1); {init line for this file}
-    append_fnam (buf, fent_p^.file_p^.name_p^, stat); {append pathname tokens}
+    string_vstring (buf, 'call src_get'(0), -1); {init line for this file}
+    append_names (buf, fent_p^.file_p^.name_p^, stat); {append pathname tokens}
     if sys_error(stat) then goto abort;
     lbuf;                              {write line to the list}
     fent_p := fent_p^.next_p           {to next list entry}
@@ -229,7 +231,7 @@ begin
   string_copy (fw.name_p^, lnam);      {build local include file name}
   string_appends (lnam, '_mdev.ins.dspic'(0));
   string_treename (lnam, tnam);        {make full absolute pathname}
-  append_fnam (buf, tnam, stat);       {append pathname tokens}
+  append_ins_dspic (buf, tnam, stat);  {append pathname tokens}
   if sys_error(stat) then goto abort;
   lbuf;                                {write line to the list}
   {
@@ -239,7 +241,7 @@ begin
   string_copy (fw.name_p^, lnam);      {build local include file name}
   string_appends (lnam, '_config_mdevs.ins.dspic'(0));
   string_treename (lnam, tnam);        {make full absolute pathname}
-  append_fnam (buf, tnam, stat);       {append pathname tokens}
+  append_ins_dspic (buf, tnam, stat);  {append pathname tokens}
   if sys_error(stat) then goto abort;
   lbuf;                                {write line to the list}
 
