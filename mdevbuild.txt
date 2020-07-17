@@ -1,5 +1,5 @@
                             Program MDEVBUILD
-                              29 April 2020
+                              17 July 2020
 
 mdevbuild [options]
 
@@ -41,6 +41,9 @@ The command line options are:
     Causes more verbose output.  Normally only new files or changes to
     existing files are mentioned.  The -V option can be useful for
     diagnosing problems with the build process.
+
+    Use the MDEVSHOW program to get a complete dump of all the MDEVs state
+    without creating or changing any files.
 
 This program writes or modifies a series of files in the current
 directory:
@@ -94,6 +97,11 @@ directory:
     dependency order.  When a module config routine is called, the config
     routines of all modules that provide required interfaces have already
     been called.
+
+    When a config routine fails to configure (emits a status code in the
+    128 to 255 range), then configuration is aborted with no subsequent
+    configuration routines called.  Due to the failed configuration, the
+    system will indicate error status.
 
     This file is overwritten if previously existing.
 

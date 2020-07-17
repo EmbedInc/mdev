@@ -43,12 +43,27 @@ begin
   ent_p := fw.mod_p;                   {init to first modules list entry}
   while ent_p <> nil do begin          {scan the list}
     mod_p := ent_p^.mod_p;             {get pointer to this module}
+
     string_vstring (buf,               {init fixed part of line}
       '         gcall   '(0), -1);
     string_append (buf, mod_p^.cfgent_p^); {config routine name}
     wbuf (stat);                       {write this line to the output file}
     if sys_error(stat) then goto abort;
+
+    string_vstring (buf,               {write check for failure}
+      '         skip_nflag cfgfail'(0), -1);
+    wbuf (stat);
+    if sys_error(stat) then goto abort;
+    string_vstring (buf,               {failure, abort}
+      '         jump    cmdevs_done'(0), -1);
+    wbuf (stat);
+    if sys_error(stat) then goto abort;
+
     ent_p := ent_p^.next_p;            {advance to next list entry}
+    if ent_p <> nil then begin         {another config call will be written ?}
+      wbuf (stat);                     {leave blank line before next config}
+      if sys_error(stat) then goto abort;
+      end;
     end;                               {back to process this new list entry}
 
 abort:                                 {file open, STAT all set}
