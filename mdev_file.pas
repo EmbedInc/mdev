@@ -3,6 +3,7 @@ define mdev_file_get;
 define mdev_file_in_list;
 define mdev_file_add_list;
 define mdev_file_suffix;
+define mdev_file_templname_resolve;
 %include 'mdev2.ins.pas';
 {
 ********************************************************************************
@@ -115,72 +116,63 @@ begin
 {
 ********************************************************************************
 *
-*   Subroutine MDEV_FILE_SUFFIX (TNAM, DIR, GNAM, SUFF, STAT)
+*   Subroutine MDEV_FILE_SUFFIX (TNAM, DIR, GNAM, ID, STAT)
 *
 *   Determine the directory, generic name (name without the file name suffix),
 *   and the file name suffix of the treename TNAM.  STAT is set to indicate
 *   error if no file name is left after the suffix is removed, the treename has
-*   no suffix, or the suffix is not recognized.  SUFF is returned a valid value
+*   no suffix, or the suffix is not recognized.  ID is returned a valid value
 *   to the extent possible, even when STAT is set to indicate error.
 }
 procedure mdev_file_suffix (           {get suffix, gnam, and directory of file}
   in      tnam: univ string_var_arg_t; {full input treename}
   in out  dir: univ string_var_arg_t;  {directory containing file}
   in out  gnam: univ string_var_arg_t; {generic name of file, without suffix}
-  out     suff: mdev_suffix_k_t;       {ID for the file name suffix}
+  out     id: mdev_suffix_k_t;         {ID for the file name suffix}
   out     stat: sys_err_t);            {completion status}
   val_param;
 
 var
-  tk: string_var32_t;                  {scratch token}
-  fnam: string_leafname_t;             {name of while within its directory}
-  p: sys_int_machine_t;                {parse index}
-  suffid: sys_int_machine_t;           {ID for the suffix of FNAM}
+  fnam: string_leafname_t;             {name of file within its directory}
+  suff: string_leafname_t;             {file name suffix}
+  gend: sys_int_machine_t;             {string index of end of generic name}
 
 label
   err_tnam;
 
 begin
-  tk.max := size_char(tk.str);         {init local var strings}
-  fnam.max := size_char(fnam.str);
+  fnam.max := size_char(fnam.str);     {init local var strings}
+  suff.max := size_char(suff.str);
   sys_error_none (stat);               {init to no error encountered}
 
   string_pathname_split (tnam, dir, fnam); {find directory and leafname in directory}
+  mdev_suffix_find (fnam, suff);       {extract the suffix into SUFF}
 
-  p := fnam.len;                       {init to last char of input file name}
-  while p > 0 do begin                 {scan backwards looking for "."}
-    if fnam.str[p] = '.' then exit;    {found separator before file name suffix ?}
-    p := p - 1;                        {no, go to next previous character}
-    end;                               {back to check this new character}
-  if p <= 0 then begin                 {no suffix ?}
-    suff := mdev_suffix_none_k;
-    string_copy (fnam, gnam);
-    sys_stat_set (mdev_subsys_k, mdev_stat_nbnosuff_k, stat);
-    goto err_tnam;                     {add file name to STAT and abort}
+  gend := fnam.len - suff.len - 1;     {init GNAM end for normal case}
+  if                                   {special case of no suffix delimiter ?}
+      (suff.len = 0) and               {no suffix characters}
+      (fnam.str[fnam.len] <> '.')      {file name doesn't end with "." ?}
+      then begin
+    gend := fnam.len;                  {generic name is whole file name}
     end;
+  string_substr (                      {extract the generic name}
+    fnam,                              {input name}
+    1,                                 {starting index}
+    gend,                              {ending index}
+    gnam);                             {returned extracted substring}
 
-  string_substr (                      {extract generic file name}
-    fnam,                              {input string}
-    1,                                 {start index}
-    p - 1,                             {end index}
-    gnam);                             {returned file name without the suffix}
+  id := mdev_suffix_id (suff);         {get and return the suffix ID}
 
-  string_substr (                      {extract file name suffix}
-    fnam,                              {input string}
-    p + 1,                             {start index}
-    fnam.len,                          {end index}
-    tk);                               {returned file name suffix}
-  string_tkpick80 (tk,                 {pick suffix from list}
-    'dspic xc16',                      {list of suffixes}
-    suffid);                           {returned 1-N ID of the suffix}
-  case suffid of                       {which type of file is this ?}
-1:  suff := mdev_suffix_dspic_k;
-2:  suff := mdev_suffix_xc16_k;
-otherwise
-    suff := mdev_suffix_unknown_k;
-    sys_stat_set (mdev_subsys_k, mdev_stat_nbunsuff_k, stat);
-    sys_stat_parm_vstr (tk, stat);     {add suffix}
-    goto err_tnam;                     {add file name and abort}
+  case id of                           {check for error cases}
+mdev_suffix_none_k: begin              {no suffix}
+      sys_stat_set (mdev_subsys_k, mdev_stat_nbnosuff_k, stat);
+      goto err_tnam;                   {add file name to STAT and abort}
+      end;
+mdev_suffix_unknown_k: begin           {not a recognized suffix}
+      sys_stat_set (mdev_subsys_k, mdev_stat_nbunsuff_k, stat);
+      sys_stat_parm_vstr (suff, stat); {add suffix}
+      goto err_tnam;                   {add file name and abort}
+      end;
     end;
 
   if gnam.len <= 0 then begin          {no file name left after suffix removed ?}
@@ -195,4 +187,56 @@ otherwise
 }
 err_tnam:
   sys_stat_parm_vstr (tnam, stat);     {add file name as error parameter}
+  end;
+{
+********************************************************************************
+*
+*   Subroutine MDEV_FILE_TEMPLNAME_RESOLVE (TEMPL, FWNAME, DNAM)
+*
+*   Resolve the template file name TEMPL to the name of the local modified copy
+*   in DNAM.  FWNAME is the name of the firmware the template is being modified
+*   for.
+}
+procedure mdev_file_templname_resolve ( {make actual file name from template name}
+  in      templ: univ string_var_arg_t; {template file name}
+  in      fwname: univ string_var_arg_t; {firmware name}
+  out     dnam: univ string_var_arg_t); {resolved template destination file leafname}
+  val_param;
+
+var
+  snam: string_leafname_t;             {source file leafname}
+  snaml: string_leafname_t;            {lower case version of SNAM}
+  tk: string_treename_t;               {scratch string}
+  ind: string_index_t;                 {string index}
+
+begin
+  snam.max := size_char(snam.str);     {init local var strings}
+  snaml.max := size_char(snaml.str);
+  tk.max := size_char(tk.str);
+
+  string_pathname_split (templ, tk, snam); {get source file leasname into SNAM}
+  string_copy (snam, snaml);           {make lower case copy for pattern matching}
+  string_downcase (snam);
+  string_vstring (tk, 'qqq'(0), -1);   {make the pattern to look for}
+  string_find (tk, snam, ind);         {look for pattern in source file name}
+  if ind = 0
+    then begin                         {source file name does not contain pattern}
+      string_copy (snam, dnam);        {use template file leafname directly}
+      end
+    else begin                         {source file name contains pattern at IND}
+      string_substr (                  {copy part of filename before pattern}
+        snam,                          {source string}
+        1,                             {starting index to copy from}
+        ind - 1,                       {ending index to copy from}
+        dnam);                         {output string}
+      string_append (dnam, fwname);    {add firmware name in place of pattern}
+      ind := ind + tk.len;             {first index after pattern in source string}
+      string_substr (                  {get part of source string after pattern}
+        snam,                          {source string}
+        ind,                           {starting index to copy from}
+        snam.len,                      {ending index to copy from}
+        tk);                           {returned substring}
+      string_append (dnam, tk);        {add the substring to end of dest snam}
+      end
+    ;
   end;

@@ -97,6 +97,7 @@ done_opts:                             {done with all the command line options}
     end;
 
   mdev_wr_templ_list (                 {write the files from templates as appropriate}
+    md,                                {MDEV data top descriptor}
     fw_p^,                             {firmware descriptor}
     verbose,
     stat);

@@ -185,6 +185,12 @@ mdev_suffix_dspic_k: begin
       string_append (buf, gnam);       {append generic file name}
       lbuf;                            {write line to the list}
       end;
+mdev_suffix_aspic_k: begin
+      string_vstring (                 {init this line to the fixed part}
+        buf, 'call src_aspic %srcdir% '(0), -1);
+      string_append (buf, gnam);       {append generic file name}
+      lbuf;                            {write line to the list}
+      end;
 mdev_suffix_xc16_k: begin
       string_vstring (                 {init this line to the fixed part}
         buf, 'call src_xc16 %srcdir% '(0), -1);
@@ -262,27 +268,26 @@ begin
   ment_p := fw.mod_p;                  {init to first modules list entry}
   while ment_p <> nil do begin         {scan the list of modules in this FW}
     mod_p := ment_p^.mod_p;            {get pointer to this module}
-    if mod_p^.build_p = nil
-      then begin                       {no explicit build list, use module name}
-        string_vstring (               {init this line to the fixed part}
-          buf, 'call src_dspic %srcdir% %fwname%_'(0), -1);
-        string_append (buf, ment_p^.mod_p^.name_p^); {add module name}
-        lbuf;                          {write line to the list}
-        end
-      else begin                       {build list explicitly provided}
-        fent_p := mod_p^.build_p;      {init to first build file list entry}
-        while fent_p <> nil do begin   {scan the list}
-          name_p := fent_p^.file_p^.name_p; {get pointer to the file name}
-          if name_p^.len > 0 then begin {not empty name ?}
-            build_file (name_p^, stat); {write command to build this file}
-            if sys_error(stat) then goto abort;
-            end;
-          fent_p := fent_p^.next_p;    {to next file in build files list}
-          end;
-        end
-      ;
+
+    fent_p := mod_p^.build_p;          {init to first build file list entry}
+    while fent_p <> nil do begin       {scan the list}
+      name_p := fent_p^.file_p^.name_p; {get pointer to the file name}
+      if name_p^.len > 0 then begin    {not empty name ?}
+        build_file (name_p^, stat);    {write command to build this file}
+        if sys_error(stat) then goto abort;
+        end;
+      fent_p := fent_p^.next_p;        {to next file in build files list}
+      end;
+
     ment_p := ment_p^.next_p;          {to next module in this firmware}
     end;                               {back to process this new list entry}
+
+  fent_p := fw.tmbld_p;                {init to first build list in firmware}
+  while fent_p <> nil do begin         {scan the list of files to build due to templates}
+    build_file (fent_p^.file_p^.name_p^, stat);
+    if sys_error(stat) then goto abort;
+    fent_p := fent_p^.next_p;          {to next list entry}
+    end;
 
   wsort (stat);                        {write sorted lines to file}
   if sys_error(stat) then goto abort;

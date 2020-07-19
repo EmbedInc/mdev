@@ -4,23 +4,24 @@ define mdev_wr_templ_list;
 {
 ********************************************************************************
 *
-*   Local subroutine GET_TEMPLATE (FW, TEMPL, VERBOSE, STAT)
+*   Local subroutine GET_TEMPLATE (MD, FW, TEMPL, VERBOSE, STAT)
 *
 *   Make sure the modified local copy of the template file TEMPL exists.  FW is
 *   the firmware to modify the template for.
 }
 procedure get_template (               {make sure modified local template copy exists}
-  in      fw: mdev_fw_t;               {firmware the template is for}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in out  fw: mdev_fw_t;               {firmware the template is for}
   in      templ: univ string_var_arg_t; {template source file name}
   in      verbose: boolean;            {show more than just changes}
   in out  stat: sys_err_t);            {completion status, caller init to no err}
   val_param; internal;
 
 var
-  dnam: string_leafname_t;             {destination file name}
+  dnam: string_leafname_t;             {destination file leafname}
   fnam: string_treename_t;             {scratch file name}
   tk: string_var8192_t;                {scratch token and string}
-  ind: string_index_t;                 {string index}
+  ent_p: mdev_file_ent_p_t;            {pointer to files list entry}
   ii: sys_int_machine_t;               {scratch integer}
   tf: boolean;                         {true/false returned by program}
   exstat: sys_sys_exstat_t;            {program exit status code}
@@ -30,34 +31,17 @@ begin
   fnam.max := size_char(fnam.str);
   tk.max := size_char(tk.str);
 
-  string_pathname_split (templ, tk, fnam); {get source file leafname into FNAM}
-  string_downcase (fnam);              {force it all lower case for pattern matching}
-  string_vstring (tk, 'qqq'(0), -1);   {pattern to look for}
-  string_find (tk, fnam, ind);         {look for the pattern in source file name}
-  if ind = 0
-    then begin                         {source file name does not contain pattern}
-      string_pathname_split (templ, tk, dnam); {use template file leafname directly}
-      end
-    else begin                         {source file name contains pattern at IND}
-      string_pathname_split (templ, dnam, fnam); {get template leafname into FNAM}
-      string_substr (                  {copy part of filename before pattern}
-        fnam,                          {source string}
-        1,                             {starting index to copy from}
-        ind - 1,                       {ending index to copy from}
-        dnam);                         {output string}
-      string_append (dnam, fw.name_p^); {add firmware name in place of template}
-      ind := ind + tk.len;             {first index after pattern in source string}
-      string_substr (                  {get part of source string after pattern}
-        fnam,                          {source string}
-        ind,                           {starting index to copy from}
-        fnam.len,                      {ending index to copy from}
-        tk);                           {returned substring}
-      string_append (dnam, tk);        {add the substring to end of dest fnam}
-      end
-    ;
+  mdev_file_templname_resolve (        {resolve destination name of template file}
+    templ,                             {template source file name}
+    fw.name_p^,                        {name of firmware to customize template for}
+    dnam);                             {destination of template pathname}
 {
 *   The destination file name is in DNAM.
 }
+  mdev_file_get (md, dnam, ent_p);     {get pointer to files list entry for dest file}
+  mdev_file_in_list (                  {make sure file is in FW templates build list}
+    md, ent_p^.file_p^, fw.tmbld_p);
+
   if file_exists (dnam) then return;   {modified template already exists ?}
   writeln ('Writing ', dnam.str:dnam.len);
 
@@ -122,13 +106,14 @@ begin
 {
 ********************************************************************************
 *
-*   Subroutine MDEV_WR_TEMPL_LIST (FW, VERBOSE, STAT)
+*   Subroutine MDEV_WR_TEMPL_LIST (MD, FW, VERBOSE, STAT)
 *
 *   Create the MDEV module source files that are modified from templates.  These
 *   files are only created if they do not previously exist.
 }
 procedure mdev_wr_templ_list (         {write the source files modified from templates}
-  in      fw: mdev_fw_t;               {the target firmare}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in out  fw: mdev_fw_t;               {the target firmare}
   in      verbose: boolean;            {show more than just changes}
   out     stat: sys_err_t);            {completion status}
   val_param;
@@ -142,7 +127,7 @@ begin
   fent_p := fw.templ_p;                {init to first template files list entry}
   while fent_p <> nil do begin         {scan the template files list}
     get_template (                     {process this template}
-      fw, fent_p^.file_p^.name_p^, verbose, stat);
+      md, fw, fent_p^.file_p^.name_p^, verbose, stat);
     if sys_error(stat) then return;
     fent_p := fent_p^.next_p;          {to next template files list entry}
     end;                               {back to process this new list entry}

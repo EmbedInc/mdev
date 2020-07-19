@@ -46,6 +46,9 @@ msg err13
 msg err14
   lan english -def
     The file name suffix "%p1s" of file "%p2s" is not recognized.
+msg err15
+  lan english -def
+    File "%p1s" is not a buildable type.
 /*
 /*   Error messages written directly by top level programs.
 /*

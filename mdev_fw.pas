@@ -69,6 +69,7 @@ begin
   string_copy (fwname, obj_p^.name_p^); {set firmware name}
   obj_p^.impl_p := nil;                {init to no interfaces implemented}
   obj_p^.templ_p := nil;               {init to no file dependencies}
+  obj_p^.tmbld_p := nil;
   obj_p^.files_p := nil;
   obj_p^.incl_p := nil;
   obj_p^.mod_p := nil;                 {init to no modules supported}

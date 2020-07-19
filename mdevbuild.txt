@@ -1,5 +1,5 @@
                             Program MDEVBUILD
-                              17 July 2020
+                              19 July 2020
 
 mdevbuild [options]
 
@@ -49,6 +49,7 @@ This program writes or modifies a series of files in the current
 directory:
 
   fwname_xxxx.DSPIC
+  fwname_xxxx.XC16
 
     These are files resulting from copying templates and modifying them
     for the particulars of the firmware.  They are usually the top level

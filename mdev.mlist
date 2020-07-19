@@ -19,6 +19,7 @@ mdev_read_dir.obj
 mdev_read_file.obj
 mdev_show.obj
 mdev_show_list.obj
+mdev_suffix.obj
 mdev_wr_build.obj
 mdev_wr_ids.obj
 mdev_wr_ins_init.obj

@@ -1,5 +1,5 @@
                              MDEV File Format
-                                4 May 2020
+                               19 July 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -279,9 +279,18 @@ Commands
       any firmware that includes this MDEV module.  The file name is
       relative to the MDEV file containing this command.
 
+      Template files are copied into the firmware directory, with
+      modification.  The results are assumed to be buildable files.  These
+      should not be added to the build list for this module.  Put another
+      way, template files implicitly result in buildable files.
+
+      The MDEVBUILD program only copies the template to make the local
+      file if the local file does not already exist.
+
       Special strings in the file name and the body of the file are
-      substituted with different values.  The special substitution strings
-      in the file name are:
+      substituted with different values.
+
+      The special substitution strings in the file name are:
 
         QQQ
 
@@ -340,10 +349,8 @@ Commands
       assembled or compiled, and the resulting binary made available to
       the linker.
 
-      When no BUILD commands are given for a module, then the single
-      buildable file <firmware>_<module>.dspic is assumed.  When one or
-      more BUILD commands are used, then only those files mentioned by
-      BUILD commands will be built.
+      Template files implicitly result in buildable files, which should
+      not be listed here.
 
       How a file is built depends on the file name suffix.  The following
       suffixes are supported:

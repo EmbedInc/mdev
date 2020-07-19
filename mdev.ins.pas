@@ -18,6 +18,7 @@ const
   mdev_stat_nbnosuff_k = 12;           {file name has no suffix}
   mdev_stat_nbnofnam_k = 13;           {no file name left after suffix removed}
   mdev_stat_nbunsuff_k = 14;           {unrecognized file name suffix}
+  mdev_stat_filenbuild_k = 15;         {file is not buildable}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 254;              {maximum valid module ID}
@@ -38,7 +39,12 @@ type
   mdev_suffix_k_t = (                  {file name suffix IDs}
     mdev_suffix_none_k,                {no suffix found}
     mdev_suffix_unknown_k,             {unrecognized file name suffix}
+    mdev_suffix_ins_dspic_k,           {.INS.DSPIC}
     mdev_suffix_dspic_k,               {.DSPIC}
+    mdev_suffix_ins_aspic_k,           {.INS.ASPIC}
+    mdev_suffix_aspic_k,               {.ASPIC}
+    mdev_suffix_ins_xc16_k,            {.INS.XC16}
+    mdev_suffix_h_k,                   {.H}
     mdev_suffix_xc16_k);               {.XC16}
 
   mdev_iface_t = record                {information about one interface}
@@ -103,6 +109,7 @@ type
     name_p: string_var_p_t;            {firmware name}
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this firmware}
     templ_p: mdev_file_ent_p_t;        {list of template files to customize and include}
+    tmbld_p: mdev_file_ent_p_t;        {list of files to build due to templates}
     files_p: mdev_file_ent_p_t;        {list of referenced files}
     incl_p: mdev_file_ent_p_t;         {list of include files}
     mod_p: mdev_mod_ent_p_t;           {list of modules FW can support, in hierarchy order}
@@ -264,7 +271,8 @@ procedure mdev_wr_mlist (              {edit MLIST file to include MDEV modules}
   val_param; extern;
 
 procedure mdev_wr_templ_list (         {write the source files modified from templates}
-  in      fw: mdev_fw_t;               {the target firmare}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in out  fw: mdev_fw_t;               {the target firmare}
   in      verbose: boolean;            {show more than just changes}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;

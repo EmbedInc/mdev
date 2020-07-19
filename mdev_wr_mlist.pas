@@ -37,6 +37,60 @@ begin
 {
 ********************************************************************************
 *
+*   Local subroutine ADD_FILE (LIST, BNAM, STAT)
+*
+*   Add the relocatable binary resulting from building the file FNAM to the list.
+}
+procedure add_file (                   {add result of buildable file to list}
+  in out  list: string_list_t;         {the list to add built result to}
+  in      bnam: univ string_var_arg_t; {name of buildable object}
+  out     stat: sys_err_t);
+  val_param; internal;
+
+var
+  fnam: string_treename_t;             {scratch file name}
+  gnam: string_leafname_t;             {buildable file leafname without suffix}
+  suff: mdev_suffix_k_t;               {file name suffix ID}
+
+begin
+  fnam.max := size_char(fnam.str);     {init local var strings}
+  gnam.max := size_char(gnam.str);
+
+  mdev_file_suffix (                   {find components of buildable file name}
+    bnam,                              {file name to find components of}
+    fnam,                              {returned directory containing the file, unused}
+    gnam,                              {returned generic file name, without suffix}
+    suff,                              {returned file name suffix ID}
+    stat);
+  if sys_error(stat) then return;
+{
+*   GNAM is the generic leafname of the buildable file, and SUFF is the ID of
+*   its suffix.
+*
+*   Now set FNAM to the resulting name of the derived binary.
+}
+  case suff of                         {what kind of file is it ?}
+mdev_suffix_dspic_k,                   {.DSPIC}
+mdev_suffix_aspic_k: begin             {.ASPIC}
+      string_copy (gnam, fnam);        {use generic file name directly}
+      end;
+mdev_suffix_xc16_k: begin              {.XC16}
+      string_copy (gnam, fnam);        {init with generic file name}
+      string_appends (fnam, '_c');     {add suffix for coming from C source}
+      end;
+otherwise                              {unrecognized suffix}
+    sys_stat_set (mdev_subsys_k, mdev_stat_filenbuild_k, stat); {file not builable type}
+    sys_stat_parm_vstr (fnam, stat);   {file name}
+    return;
+    end;
+{
+*   Make sure the derived binary with generic name FNAM is in the list.
+}
+  in_list (list, fnam);                {make sure this derived object is in the list}
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_WR_MLIST (FW, VERBOSE, STAT)
 *
 *   Edit the MLIST file for the firmware FW to include all the MDEV modules.
@@ -60,68 +114,29 @@ var
   id: sys_int_machine_t;               {assigned module ID}
 
 label
-  abort, abort2, err_atline;
+  done_read, abort, abort2, err_atline;
 
 %include 'wbuf_local.ins.pas';
 {
 ****************************************
 *
-*   Private subroutine ADD_MODULE (FW, MOD, STAT)
+*   Private subroutine ADD_FROM_LIST
 *
-*   Add the relocatable binarie from the module MOD to the MLIST list.
+*   Add the linkable result of each file in a list to the MLIST list.
 }
-procedure add_module (                 {add binaries from a module}
-  in      fw: mdev_fw_t;               {the firmware being built}
-  in      mod: mdev_mod_t;             {the module to add binaries from}
+procedure add_from_list(               {add binaries from a MDEV}
+  in      flist_p: mdev_file_ent_p_t;  {pointer to files list}
   out     stat: sys_err_t);
   val_param; internal;
 
 var
   ent_p: mdev_file_ent_p_t;            {buildable files list entry}
-  dir: string_treename_t;              {directory containing buildable file}
-  gnam: string_leafname_t;             {buildable file leafname without suffix}
-  suff: mdev_suffix_k_t;               {file name suffix ID}
 
 begin
-  dir.max := size_char(dir.str);       {init local var strings}
-  gnam.max := size_char(gnam.str);
-
-  if mod.build_p = nil then begin      {no explicit files, use default module name}
-    string_copy (fw.name_p^, buf);     {init list entry with firmware name}
-    string_append1 (buf, '_');
-    string_append (buf, fw.modids[id].mod_p^.name_p^); {add MDEV module name}
-    in_list (mlist, buf);              {make sure this module in list}
-    return;
-    end;
-{
-*   This module has a explicitly list of buildable files.  We assume each
-*   results in a binary to add to the list.
-}
-  ent_p := mod.build_p;                {init to first buildable files list entry}
+  ent_p := flist_p;                    {init to first file in list}
   while ent_p <> nil do begin          {scan the list}
-    if ent_p^.file_p^.name_p^.len > 0 then begin {non-empty file name ?}
-      mdev_file_suffix (               {find components of buildable file name}
-        ent_p^.file_p^.name_p^,        {file treename to find components of}
-        dir,                           {directory containing the file}
-        gnam,                          {generic file name, without suffix}
-        suff,                          {file name suffix ID}
-        stat);
-      if sys_error(stat) then return;
-      case suff of                     {what kind of file is it ?}
-mdev_suffix_dspic_k: begin             {.DSPIC}
-          string_copy (gnam, buf);     {use generic file name directly}
-          end;
-mdev_suffix_xc16_k: begin              {.XC16}
-          string_copy (gnam, buf);     {init with generic file name}
-          string_appends (buf, '_c');  {add suffix for coming from C source}
-          end;
-otherwise                              {unrecognized suffix}
-        writeln ('*** INTERNAL ERROR in MDEV_WR_MLIST > ADD_MODULE ***');
-         writeln ('  File name suffix ID ', ord(suff), ' is not implemented.');
-        sys_bomb;
-        end;
-      in_list (mlist, buf);            {make sure this module is in the list}
-      end;                             {end of filename not empty case}
+    add_file (mlist, ent_p^.file_p^.name_p^, stat); {add derived result to MLIST}
+    if sys_error(stat) then return;
     ent_p := ent_p^.next_p;            {advance to next buildable files list entry}
     end;                               {back to process this new list entry}
   end;
@@ -140,15 +155,16 @@ begin
 {
 *   Read the MLIST file and save the module names in MLIST.
 }
+  string_list_init (                   {init the modules list}
+    mlist, util_top_mem_context);
+  mlist.deallocable := false;          {will not individually deallocate lines}
+
   file_open_read_text (                {open the MLIST file}
     fnam, '',                          {file name and suffixes}
     conn,                              {returned connection to the file}
     stat);
-  if sys_error(stat) then return;
-
-  string_list_init (                   {init the modules list}
-    mlist, util_top_mem_context);
-  mlist.deallocable := false;          {will not individually deallocate lines}
+  if file_not_found(stat) then goto done_read; {nothing to read ?}
+  if sys_error(stat) then goto abort2;
 
   while true do begin                  {loop over the MLIST file lines}
     file_read_text (conn, buf, stat);  {read the next MLIST file line}
@@ -187,14 +203,26 @@ otherwise
       end;
     end;                               {back to read next line from MLIST file}
   file_close(conn);                    {close the MLIST file}
+
+done_read:
 {
-*   Make sure the MDEV modules are in the list.
+*   Make sure the derived objects from the buildable files of all modules
+*   in this firmware are in MLIST.
 }
   for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan the assigned IDs}
-    if not fw.modids[id].used then next; {no module included with this ID}
-    add_module (fw, fw.modids[id].mod_p^, stat); {add binaries from this module}
+    if not fw.modids[id].used then next; {no mdev included with this ID}
+    add_from_list (                    {add derived objects to MLIST}
+      fw.modids[id].mod_p^.build_p,    {list of buildable files}
+      stat);
     if sys_error(stat) then goto abort2;
     end;                               {back for next ID}
+{
+*   Make sure the result of building all the template files is in MLIST.
+}
+  add_from_list (                      {add derived objects to MLIST}
+    fw.tmbld_p,                        {list of buildable objects}
+    stat);
+  if sys_error(stat) then goto abort2;
 {
 *   Sort the list.  This way there are no net changes to the file when the
 *   content doesn't change.
