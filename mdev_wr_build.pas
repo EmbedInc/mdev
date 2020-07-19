@@ -221,8 +221,21 @@ begin
     stat);
   if sys_error(stat) then return;
   outlist_start;                       {start use of the output lines list}
-
+  {
+  *   Add entries for files used directory by buildable components.
+  }
   fent_p := fw.files_p;                {init to first list entry}
+  while fent_p <> nil do begin         {scan the list}
+    string_vstring (buf, 'call src_get'(0), -1); {init line for this file}
+    append_names (buf, fent_p^.file_p^.name_p^, stat); {append pathname tokens}
+    if sys_error(stat) then goto abort;
+    lbuf;                              {write line to the list}
+    fent_p := fent_p^.next_p           {to next list entry}
+    end;                               {back to process this new list entry}
+  {
+  *   Add entries for files that need to be included in the main project file.
+  }
+  fent_p := fw.incl_p;                 {init to first list entry}
   while fent_p <> nil do begin         {scan the list}
     string_vstring (buf, 'call src_get'(0), -1); {init line for this file}
     append_names (buf, fent_p^.file_p^.name_p^, stat); {append pathname tokens}
