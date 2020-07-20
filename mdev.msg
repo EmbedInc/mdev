@@ -36,7 +36,7 @@ msg err10
 msg err11
   lan english -def
     Module entry point name previously set.  Error encountered on line
-    %p2i of file "%p3s".
+    %p1i of file "%p2s".
 msg err12
   lan english -def
     File "%p1s" has no suffix to identify its type.
