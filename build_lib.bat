@@ -36,6 +36,7 @@ call src_pas %srcdir% %libname%_wr_ids
 call src_pas %srcdir% %libname%_wr_ins_init
 call src_pas %srcdir% %libname%_wr_ins_main
 call src_pas %srcdir% %libname%_wr_mlist
+call src_pas %srcdir% %libname%_wr_mod_hier
 call src_pas %srcdir% %libname%_wr_templ
 
 call src_lib %srcdir% %libname%

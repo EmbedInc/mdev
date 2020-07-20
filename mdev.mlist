@@ -25,4 +25,5 @@ mdev_wr_ids.obj
 mdev_wr_ins_init.obj
 mdev_wr_ins_main.obj
 mdev_wr_mlist.obj
+mdev_wr_mod_hier.obj
 mdev_wr_templ.obj

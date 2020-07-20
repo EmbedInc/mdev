@@ -139,5 +139,11 @@ done_opts:                             {done with all the command line options}
     stat);
   sys_error_abort (stat, '', '', nil, 0);
 
+  mdev_wr_mod_hier (                   {write CS file with modules hierarchy}
+    fw_p^,                             {firmware descriptor}
+    verbose,                           {selects more verbose output}
+    stat);
+  sys_error_abort (stat, '', '', nil, 0);
+
   mdev_lib_end (md);                   {end use of the MDEV library}
   end.
