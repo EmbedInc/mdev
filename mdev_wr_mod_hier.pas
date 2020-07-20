@@ -66,8 +66,8 @@ have_dep:                              {DEP and SHARED all set}
 *
 *   Subroutine MDEV_WR_MOD_HIER (FW, VERBOSE, STAT)
 *
-*   Write the ModHier.cs file, which defines the dependency hierarch of the MDEV
-*   modules in this firmware.  This file is intended to be imported into
+*   Write the fwname_DEPS.CS file, which defines the dependency hierarch of the
+*   MDEV modules in this firmware.  This file is intended to be imported into
 *   MetriConnect so that it can perform dependency checking and validation.
 }
 procedure mdev_wr_mod_hier (           {write modules hierarchy to ModHier.cs file}
@@ -89,7 +89,8 @@ label
 begin
   tk.max := size_char(tk.str);         {init local var string}
 
-  string_vstring (tk, 'ModHier.cs'(0), -1); {make output file name}
+  string_copy (fw.name_p^, tk);        {init file name with firmware name}
+  string_appends (tk, '_deps.cs'(0));  {add fixed part of file name}
   hier_write_file_open (               {open output file}
     tk, '',                            {file name}
     wr,                                {returned writing state}
@@ -105,12 +106,6 @@ begin
   hier_write_str (wr, ' firmware MDEV module hierarchy.');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
 
-  hier_write_str (wr, '//   Written ');
-  sys_clock_str1 (sys_clock, tk);      {make current date/time string}
-  hier_write_vstr (wr, tk);
-  hier_write_str (wr, '.');
-  hier_write_line (wr, stat); if sys_error(stat) then goto abort;
-
   hier_write_str (wr, '//');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
 {
@@ -123,11 +118,13 @@ begin
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_start (wr);
 
-  hier_write_str (wr, 'internal static class Definitions {');
+  hier_write_str (wr, 'public class ');
+  hier_write_vstr (wr, fw.name_p^);
+  hier_write_str (wr, '_Definitions : Definitions_Base {');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_start (wr);
 
-  hier_write_str (wr, 'public static string[] Modules = new string[] {');
+  hier_write_str (wr, 'public override string[] Modules => new string[] {');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_start (wr);
   {
@@ -146,11 +143,11 @@ begin
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_end (wr);
 
-  hier_write_str (wr, 'public static Tuple<string, string, bool>[] ');
+  hier_write_str (wr, 'public override Tuple<string, string, bool>[] ');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_start (wr);
   hier_write_block_start (wr);
-  hier_write_str (wr, 'Dependencies = new Tuple<string, string, bool>[] {');
+  hier_write_str (wr, 'Dependencies => new Tuple<string, string, bool>[] {');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_end (wr);
   {
