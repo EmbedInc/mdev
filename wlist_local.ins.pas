@@ -1,7 +1,7 @@
 {   Convenience routines for writing sorted lines to a file.  This file is
 *   intended to be included directly in each module that uses these routines.
 *   They therefore become local routines with access to local variables that do
-*   not need to be passed on the command line.
+*   not need to be passed as arguments.
 *
 *   This module requires the following local state:
 *

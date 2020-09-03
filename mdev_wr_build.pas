@@ -222,7 +222,7 @@ begin
   if sys_error(stat) then return;
   outlist_start;                       {start use of the output lines list}
   {
-  *   Add entries for files used directory by buildable components.
+  *   Add entries for files used directly by buildable components.
   }
   fent_p := fw.files_p;                {init to first list entry}
   while fent_p <> nil do begin         {scan the list}
@@ -261,6 +261,16 @@ begin
   string_appends (lnam, '_config_mdevs.ins.dspic'(0));
   string_treename (lnam, tnam);        {make full absolute pathname}
   append_ins_dspic (buf, tnam, stat);  {append pathname tokens}
+  if sys_error(stat) then goto abort;
+  lbuf;                                {write line to the list}
+  {
+  *   Add entry for fwname_IDS.H file.
+  }
+  string_vstring (buf, 'call src_get'(0), -1); {init line for this file}
+  string_copy (fw.name_p^, lnam);      {build local include file name}
+  string_appends (lnam, '_ids.h'(0));
+  string_treename (lnam, tnam);        {make full absolute pathname}
+  append_names (buf, tnam, stat);      {append pathname tokens}
   if sys_error(stat) then goto abort;
   lbuf;                                {write line to the list}
 
