@@ -231,7 +231,7 @@ begin
   *   Write list of mutually exclusive modules.  These are pairs of modules that
   *   use the same interface, but can not share that interface.
   }
-  hier_write_str (wr, 'public override Tuple<string, string>[] ');
+  hier_write_str (wr, 'public override Tuple<string, string>[]');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_start (wr);
   hier_write_block_start (wr);
