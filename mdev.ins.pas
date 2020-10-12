@@ -264,7 +264,7 @@ procedure mdev_wr_ins_main (           {write main MDEV include file}
   out     stat: sys_err_t);            {completion status}
   val_param; extern;
 
-procedure mdev_wr_mod_hier (           {write modules hierarchy to ModHier.cs file}
+procedure mdev_wr_mod_hier (           {write modules hierarchy to fwname_DEPS.CS file}
   in      fw: mdev_fw_t;               {the target firmare}
   in      verbose: boolean;            {show more than just changes}
   out     stat: sys_err_t);            {completion status}

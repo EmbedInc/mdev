@@ -64,13 +64,68 @@ have_dep:                              {DEP and SHARED all set}
 {
 ********************************************************************************
 *
+*   Local subroutine WRITE_MOD_EXLUSIVE (WR, MOD1, MOD2, STAT)
+*
+*   Write a line to the output file if the two modules are mutually exclusive of
+*   each other.  That means they both depend on the same interface, but that
+*   interface can not be shared by both modules.  Nothing is written if the two
+*   modules have no conflict.
+}
+procedure write_mod_exclusive (        {write if MOD1 and MOD2 are mutually exclusive}
+  in out  wr: hier_write_t;            {output file writing state}
+  in      mod1, mod2: mdev_mod_t;      {MOD1 might depend on MOD2}
+  out     stat: sys_err_t);
+  val_param; internal;
+
+var
+  if1_p: mdev_iface_ent_p_t;           {MOD1 required interfaces list entry}
+  if2_p: mdev_iface_ent_p_t;           {MOD2 required interfaces list entry}
+
+label
+  next2, excl;
+
+begin
+  sys_error_none (stat);               {init to no error}
+  if1_p := mod1.uses_p;
+  while if1_p <> nil do begin          {scan list of interfaces used by module 1}
+    if2_p := mod2.uses_p;
+    while if2_p <> nil do begin        {scan list of interfaces used by module 2}
+      if if2_p^.iface_p <> if1_p^.iface_p then goto next2; {not same interface ?}
+      if                               {check for conflict using this interface}
+          (not if1_p^.shared) or       {module 1 can't share this interface ?}
+          (not if2_p^.shared)          {module 2 can't share this interface ?}
+          then begin
+        goto excl;                     {go show these modules can't coexist}
+        end;
+next2:                                 {advance to next interface used by module 2}
+      if2_p := if2_p^.next_p;          {to next module 2 interface list entry}
+      end;                             {back to test against this new interface}
+    if1_p := if1_p^.next_p;            {to next module 1 interface list entry}
+    end;                               {back to test against this new interface}
+
+  return;                              {the two modules don't conflict}
+{
+*   The two modules are mutually exclusive.  Write an output line naming these
+*   two module.
+}
+excl:
+  hier_write_str (wr, 'new Tuple<string, string>("');
+  hier_write_vstr (wr, mod1.name_p^);  {module name}
+  hier_write_str (wr, '", "');
+  hier_write_vstr (wr, mod2.name_p^);  {name of module dependent on}
+  hier_write_str (wr, '"),');
+  hier_write_line (wr, stat);
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_WR_MOD_HIER (FW, VERBOSE, STAT)
 *
 *   Write the fwname_DEPS.CS file, which defines the dependency hierarch of the
 *   MDEV modules in this firmware.  This file is intended to be imported into
 *   MetriConnect so that it can perform dependency checking and validation.
 }
-procedure mdev_wr_mod_hier (           {write modules hierarchy to ModHier.cs file}
+procedure mdev_wr_mod_hier (           {write modules hierarchy to fwname_DEPS.CS file}
   in      fw: mdev_fw_t;               {the target firmare}
   in      verbose: boolean;            {show more than just changes}
   out     stat: sys_err_t);            {completion status}
@@ -142,7 +197,11 @@ begin
   hier_write_str (wr, '};');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_end (wr);
-
+  {
+  *   For each module, list the modules it depends on, if any.  In this section
+  *   MOD1 is the module for which dependencies are listed, and MOD2 is a
+  *   candidate module that MOD1 might depend on.
+  }
   hier_write_str (wr, 'public override Tuple<string, string, bool>[] ');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_start (wr);
@@ -150,11 +209,7 @@ begin
   hier_write_str (wr, 'Dependencies => new Tuple<string, string, bool>[] {');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_end (wr);
-  {
-  *   For each module, list the modules it depends on, if any.  In this section
-  *   MOD1 is the module for which dependencies are listed, and MOD2 is a
-  *   candidate module that MOD1 might depend on.
-  }
+
   mod_p := fw.mod_p;                   {loop over all the modules in this firmware}
   while mod_p <> nil do begin
     mod2_p := fw.mod_p;                {scan all the modules that MOD1 might depend on}
@@ -172,7 +227,36 @@ begin
   hier_write_str (wr, '};');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_end (wr);
+  {
+  *   Write list of mutually exclusive modules.  These are pairs of modules that
+  *   use the same interface, but can not share that interface.
+  }
+  hier_write_str (wr, 'public override Tuple<string, string>[] ');
+  hier_write_line (wr, stat); if sys_error(stat) then goto abort;
+  hier_write_block_start (wr);
+  hier_write_block_start (wr);
+  hier_write_str (wr, 'Exclusions => new Tuple<string, string>[] {');
+  hier_write_line (wr, stat); if sys_error(stat) then goto abort;
+  hier_write_block_end (wr);
 
+  mod_p := fw.mod_p;                   {loop over all the modules in this firmware}
+  while mod_p <> nil do begin
+    mod2_p := mod_p^.next_p;           {scan all following modules in the list}
+    while mod2_p <> nil do begin
+      write_mod_exclusive (            {write entry if modules mutually exclusive}
+        wr, mod_p^.mod_p^, mod2_p^.mod_p^, stat);
+      if sys_error(stat) then goto abort;
+      mod2_p := mod2_p^.next_p;        {to next "other" module to check against}
+      end;
+    mod_p := mod_p^.next_p;            {to next module to check exclusions with}
+    end;
+
+  hier_write_str (wr, '};');
+  hier_write_line (wr, stat); if sys_error(stat) then goto abort;
+  hier_write_block_end (wr);
+{
+*   Done writing output file contents.
+}
   hier_write_str (wr, '}');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_end (wr);
