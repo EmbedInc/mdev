@@ -26,6 +26,7 @@ procedure outlist_start;
 begin
   string_list_init (outlist, util_top_mem_context); {init the list}
   outlist.deallocable := false;        {won't need to individually deallocate entries}
+  buf.len := 0;                        {init the buffer to empty}
   end;
 {
 ********************************************************************************
