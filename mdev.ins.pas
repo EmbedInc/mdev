@@ -112,6 +112,7 @@ type
     tmbld_p: mdev_file_ent_p_t;        {list of files to build due to templates}
     files_p: mdev_file_ent_p_t;        {list of referenced files}
     incl_p: mdev_file_ent_p_t;         {list of include files}
+    nmod_p: mdev_mod_ent_p_t;          {list of modules to not include in this firmware}
     mod_p: mdev_mod_ent_p_t;           {list of modules FW can support, in hierarchy order}
     modids: mdev_modids_t;             {module for each possible module ID}
     end;

@@ -1,6 +1,35 @@
 module mdev_module;
+define mdev_mod_link;
 define mdev_mod_get;
 %include 'mdev2.ins.pas';
+{
+********************************************************************************
+*
+*   Subroutine MDEV_MOD_LINK (MD, MOD, LIST_P)
+*
+*   Link the module MOD to the start of the modules list at LIST_P.  No checking
+*   is done whether the module is already in the list.  A new list entry will be
+*   created, and linked to the start of the list.  LIST_P will therefore be
+*   returned pointing to the new list entry.
+}
+procedure mdev_mod_link (              {link module to start of list}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in var  mod: mdev_mod_t;             {module to add list entry for}
+  in out  list_p: mdev_mod_ent_p_t);   {pointer to list, will point to new entry}
+  val_param;
+
+var
+  ent_p: mdev_mod_ent_p_t;             {pointer to the new list entry}
+
+begin
+  util_mem_grab (                      {allocate mem for new list entry}
+    sizeof(ent_p^), md.mem_p^, false, ent_p);
+
+  ent_p^.next_p := list_p;             {fill in list entry}
+  ent_p^.mod_p := addr(mod);
+
+  list_p := ent_p;                     {update list pointer to new entry}
+  end;
 {
 ********************************************************************************
 *
@@ -43,9 +72,6 @@ begin
   obj_p^.incl_p := nil;
   obj_p^.build_p := nil;
 
-  util_mem_grab (                      {allocate mem for new list entry}
-    sizeof(ent_p^), md.mem_p^, false, ent_p);
-  ent_p^.next_p := md.mod_p;           {fill in list entry}
-  ent_p^.mod_p := obj_p;
-  md.mod_p := ent_p;                   {link to start of list}
+  mdev_mod_link (md, obj_p^, md.mod_p); {link to start of global modules list}
+  ent_p := md.mod_p;                   {return pointer to new list entry}
   end;

@@ -69,6 +69,12 @@ procedure mdev_mod_get (               {get a specific modules list entry}
   out     ent_p: mdev_mod_ent_p_t);    {pointer to global list entry for this module}
   val_param; extern;
 
+procedure mdev_mod_link (              {link module to start of list}
+  in out  md: mdev_t;                  {MDEV library use state}
+  in var  mod: mdev_mod_t;             {module to add list entry for}
+  in out  list_p: mdev_mod_ent_p_t);   {pointer to list to add entry to}
+  val_param; extern;
+
 procedure mdev_resolve_file (          {resolve dependencies of a file}
   in out  md: mdev_t;                  {MDEV library use state}
   in out  file: mdev_file_t);          {file to resolve dependencies of}

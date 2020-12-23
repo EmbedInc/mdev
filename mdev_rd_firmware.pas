@@ -147,6 +147,52 @@ begin
 {
 ********************************************************************************
 *
+*   Local subroutine READ_NOTMOD (MR, FW, STAT)
+*
+*   Read the remainder of the NOTMOD subcommand.  The command name has been
+*   read.  STAT is assumed to be initialized to no error by the caller.
+}
+procedure read_notmod (                {read NOTMOD subcommand}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  fw: mdev_fw_t;               {the firmware this subcommand is for}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; internal;
+
+var
+  name: string_var32_t;                {module name}
+  ent_p: mdev_mod_ent_p_t;             {points to current modules list entry}
+  modn_p: mdev_mod_p_t;                {points to module to not include}
+
+begin
+  name.max := size_char(name.str);     {init local var string}
+
+  if not hier_read_tk_req (mr.rd, name, stat) {read the module name}
+    then return;
+  if not hier_read_eol (mr.rd, stat)   {not at end of line ?}
+    then return;
+
+  mdev_mod_get (mr.md_p^, name, ent_p); {get modules list entry for this module}
+  modn_p := ent_p^.mod_p;              {get pointer to module to not include}
+{
+*   MODN_P points to the module to not include in this firmware.
+*
+*   Check for this module is already in the not-include list.
+}
+  ent_p := fw.nmod_p;                  {init to first not-include list entry}
+  while ent_p <> nil do begin          {scan the not-include list}
+    if ent_p^.mod_p = modn_p then begin {the module to exclude already in list ?}
+      return;                          {yes, nothing more to do}
+      end;
+    ent_p := ent_p^.next_p;            {not next not-include list entry}
+    end;
+{
+*   The module is not already in the not-include list.  Add it.
+}
+  mdev_mod_link (mr.md_p^, modn_p^, fw.nmod_p); {add to start of not-include list}
+  end;
+{
+********************************************************************************
+*
 *   Subroutine MDEV_RD_FIRMWARE (MR, STAT)
 *
 *   Read the remainder of the FIRMWARE command.  The command name has been read.
@@ -183,7 +229,7 @@ begin
   hier_read_block_start (mr.rd);       {enter the subordinate block}
   while hier_read_line (mr.rd, stat) do begin {back here each new subcommand}
     case hier_read_keyw_pick (mr.rd,
-        'PROVIDES ID',
+        'PROVIDES ID NOTMOD',
         stat) of
 
 1:    begin                            {PROVIDES iface}
@@ -198,6 +244,10 @@ begin
 
 2:    begin                            {ID id modname}
         read_id (mr, obj_p^, stat);    {read and process the ID subcommand}
+        end;
+
+3:    begin                            {NOTMOD modname}
+        read_notmod (mr, obj_p^, stat); {read and process the NOTMOD subcommand}
         end;
 
 otherwise

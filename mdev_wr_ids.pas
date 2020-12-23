@@ -55,7 +55,6 @@ begin
 
   for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
     if fw.modids[id].mod_p = nil then next; {nothing assigned to this ID ?}
-    if not fw.modids[id].used then next; {module assigned here not included in FW}
     string_vstring (buf, '  id '(0), -1); {start ID subcommand}
     string_append_intu (buf, id, 0);   {add ID}
     string_append1 (buf, ' ');

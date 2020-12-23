@@ -39,11 +39,11 @@ begin
 *   Check whether the module MOD can be supported by the firmware FW.  The
 *   function returns TRUE iff the firmware and its modules provide all the
 *   interfaces required by the module MOD.  Only the modules in the FW modules
-*   list up to the list entry at MODSUPP_P will be check for providing the
+*   list up to the list entry at MODSUPP_P will be checked for providing the
 *   necessary interfaces.  MODSUPP_P of NIL means to check no modules.
 }
 function module_supported (            {check whether module supported by firmware}
-  in      mod: mdev_mod_t;             {the module to check for support for}
+  in var  mod: mdev_mod_t;             {the module to check for support for}
   in      fw: mdev_fw_t;               {firmare that might support the module}
   in      modsupp_p: mdev_mod_ent_p_t) {last mod to check for providing interfaces}
   :boolean;                            {the module is supported}
@@ -96,6 +96,17 @@ begin
 }
 begin
   module_supported := true;            {init to all required interfaces provided}
+{
+*   Return FALSE if the module is in the not-include list of this firmware.
+}
+  modent_p := fw.nmod_p;               {init to first not-include list entry}
+  while modent_p <> nil do begin       {scan the not-include list}
+    if modent_p^.mod_p = addr(mod) then begin {module is in not-include list ?}
+      module_supported := false;       {indicate to not include module in firmware}
+      return;
+      end;
+    modent_p := modent_p^.next_p;      {advance to next no-include list entry}
+    end;
 {
 *   Create a local list of the interfaces required by the module.  REQ_P will
 *   point to a array of interfaces, and NREQ will be the number of required

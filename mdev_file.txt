@@ -1,5 +1,5 @@
                              MDEV File Format
-                               19 July 2020
+                             23 December 2020
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -224,6 +224,12 @@ Commands
       Each firmware has its own ID namespace.  This means that while each
       firmware is limited to having 254 modules included, the global
       number of total available modules is unlimited.
+
+    NOTMOD modname
+
+      Indicates a module to not include in the firmware, even if its
+      constraints would otherwise be met.  The module need not be
+      eventually defined.
 
   MODULE name
 
