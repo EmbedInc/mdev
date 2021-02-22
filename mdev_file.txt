@@ -1,5 +1,5 @@
                              MDEV File Format
-                             23 December 2020
+                             22 February 2021
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -256,6 +256,44 @@ Commands
       function names with "_".  If the configuration function is written
       in XC16 and named "xyz_config", then NAME here must be set to
       "_xyz_config".
+
+    DECONFIG name
+
+      Provides the name of the optional entry point to "undo" a previous
+      configuration.  This routine will only be called by the system when
+      the configuration routine was previously called.  The purpose is to
+      "turn off" the MDEV and deallocate any resources used by the MDEV,
+      such as tasks and temporary dynamic memory.
+
+      MDEVs that receive calls from base system code (not other MDEVs)
+      need to make sure such calls will do nothing and not attempt to
+      access deallocated resources.  For example, a routine into an MDEV
+      to store a value in a dynamically allocated database may still be
+      called after de-configuration.  However, that routine must then be
+      sure to no attempt to write to the database, since its memory no
+      longer exists.
+
+      All MDEVs may be shut down by the system, but are not required to
+      have a de-config entry point.  To shut down and restart all MDEVs,
+      the system will:
+
+        1 - Run the de-config entry point of any MDEVs that have them.
+            These will be called in reverse dependency order.  For
+            example, the last MDEV to be configured will be the first MDEV
+            to be de-configured.
+
+        2 - Stop all tasks launched after the base system tasks.
+
+        3 - Deallocate all dynamic memory.  This includes both temporary
+            and permanent dynamic memory.
+
+        4 - Re-check the non-volatile memory checksum.
+
+        5 - Re-run the configuration routines for all MDEVs, just as was
+            done when the system was first started.
+
+      If steps 1 and 2 are sufficient to shut down an MDEV, then no
+      de-config entry point needs to be provided.
 
     USES iface [shared]
 

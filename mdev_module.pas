@@ -64,6 +64,7 @@ begin
     name.len, md.mem_p^, false, obj_p^.name_p);
   string_copy (name, obj_p^.name_p^);  {set name}
   obj_p^.cfgent_p := nil;              {init remaining descriptor fields}
+  obj_p^.deconfig_p := nil;
   obj_p^.desc_p := nil;
   obj_p^.uses_p := nil;
   obj_p^.impl_p := nil;

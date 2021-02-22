@@ -49,6 +49,10 @@ msg err14
 msg err15
   lan english -def
     File "%p1s" is not a buildable type.
+msg err16
+  lan english -def
+    Module deconfig entry point name previously set.  Error encountered on
+    line %p1i of file "%p2s".
 /*
 /*   Error messages written directly by top level programs.
 /*

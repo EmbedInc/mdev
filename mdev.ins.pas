@@ -19,6 +19,7 @@ const
   mdev_stat_nbnofnam_k = 13;           {no file name left after suffix removed}
   mdev_stat_nbunsuff_k = 14;           {unrecognized file name suffix}
   mdev_stat_filenbuild_k = 15;         {file is not buildable}
+  mdev_stat_dent2_k = 16;              {module deconfig entry point already set}
 
   mdev_modid_min_k = 1;                {minimum valid module ID}
   mdev_modid_max_k = 254;              {maximum valid module ID}
@@ -81,7 +82,8 @@ type
 
   mdev_mod_t = record                  {information about one module}
     name_p: string_var_p_t;            {points to module name, mixed case}
-    cfgent_p: string_var_p_t;          {configuration routine entry point}
+    cfgent_p: string_var_p_t;          {configuration routine entry point name}
+    deconfig_p: string_var_p_t;        {de-configuration routine entry point name}
     desc_p: string_var_p_t;            {points to description string}
     uses_p: mdev_iface_ent_p_t;        {list of interfaces required by this module}
     impl_p: mdev_iface_ent_p_t;        {list of interfaces implemented by this module}
@@ -254,6 +256,7 @@ procedure mdev_wr_ids_cs (             {write CS file with info about this firma
   val_param; extern;
 
 procedure mdev_wr_ins_init (           {write initialization include file}
+  in out  md: mdev_t;                  {state for this use of the MDEV library}
   in      fw: mdev_fw_t;               {the target firmare}
   in      verbose: boolean;            {show more than just changes}
   out     stat: sys_err_t);            {completion status}

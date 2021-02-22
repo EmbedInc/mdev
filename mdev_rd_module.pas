@@ -270,6 +270,41 @@ begin
 {
 ********************************************************************************
 *
+*   Local subroutine MOD_DECONFIG (MR, MOD, STAT)
+*
+*   Process the DECONFIG subcommand.  The command name has been read.
+}
+procedure mod_deconfig (               {process DECONFIG command after keyword}
+  in out  mr: mdev_read_t;             {MDEV file reading state}
+  in out  mod: mdev_mod_t;             {the module}
+  in out  stat: sys_err_t);            {completion status, caller init to no err}
+  val_param; internal;
+
+var
+  name: string_var80_t;                {entry point name}
+
+begin
+  name.max := size_char(name.str);     {init local var string}
+
+  if mod.deconfig_p <> nil then begin  {entry point name already set ?}
+    sys_stat_set (mdev_subsys_k, mdev_stat_dent2_k, stat);
+    hier_err_line_file (mr.rd, stat);  {add line number and file name}
+    return;
+    end;
+
+  if not hier_read_tk_req (mr.rd, name, stat) then return; {get entry point name}
+  if not hier_read_eol (mr.rd, stat) then return; {verify end of line}
+
+  string_alloc (                       {alloc mem for entry point name string}
+    name.len,                          {string length}
+    mr.md_p^.mem_p^,                   {memory context}
+    false,                             {won't individually deallocate this}
+    mod.deconfig_p);                   {returned pointer to the new string}
+  string_copy (name, mod.deconfig_p^); {fill in the new string}
+  end;
+{
+********************************************************************************
+*
 *   Local subroutine MOD_BUILD (MR, MOD, STAT)
 *
 *   Process the BUILD subcommand.  The command name has been read.
@@ -330,7 +365,7 @@ begin
   hier_read_block_start (mr.rd);       {go down into MODULE block}
   while hier_read_line (mr.rd, stat) do begin {back here each new subcommand}
     case hier_read_keyw_pick (mr.rd,   {get subcommand keyword, pick from list}
-        'DESC USES PROVIDES TEMPLATE SOURCE INCLUDE CFGENT BUILD',
+        'DESC USES PROVIDES TEMPLATE SOURCE INCLUDE CFGENT BUILD DECONFIG',
         stat) of
 
 1:    begin                            {DESC}
@@ -364,6 +399,10 @@ begin
 
 8:    begin                            {BUILD}
         mod_build (mr, obj_p^, stat);  {process rest of command line}
+        end;
+
+9:    begin                            {DECONFIG}
+        mod_deconfig (mr, obj_p^, stat); {process rest of command line}
         end;
 
       end;                             {end of subcommand cases}

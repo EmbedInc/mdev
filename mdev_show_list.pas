@@ -142,6 +142,11 @@ begin
       writeln ('':indent+2, 'Config entry: "',
         obj_p^.cfgent_p^.str:obj_p^.cfgent_p^.len, '"');
 
+      if obj_p^.deconfig_p <> nil then begin
+        writeln ('':indent+2, 'De-config entry: "',
+          obj_p^.deconfig_p^.str:obj_p^.deconfig_p^.len, '"');
+        end;
+
       writeln ('':indent+2, 'Uses:');
       mdev_show_list_iface (obj_p^.uses_p, indent+4, false);
 

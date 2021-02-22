@@ -116,6 +116,7 @@ done_opts:                             {done with all the command line options}
   sys_error_abort (stat, '', '', nil, 0);
 
   mdev_wr_ins_init (                   {write include file for initializing MDEV modules}
+    md,                                {state for this use of the MDEV library}
     fw_p^,                             {firmware descriptor}
     verbose,                           {selects more verbose output}
     stat);
