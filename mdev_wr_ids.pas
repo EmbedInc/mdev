@@ -152,6 +152,60 @@ begin
 
   file_close (conn);                   {close the file}
 {
+*   Write the fwname_SUBSYS_STR.INS.PAS file.
+}
+  string_copy (fw.name_p^, fnam);      {init file name with the firmware name}
+  string_appends (fnam, '_subsys_str.ins.pas'(0)); {add fixed part of the file name}
+
+  file_open_write_text (               {open the file}
+    fnam, '',                          {file name and suffix}
+    conn,                              {returned connection to the file}
+    stat);
+  if sys_error(stat) then return;
+
+  string_vstring (buf, '  {'(0), -1);  {section comment}
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+  string_vstring (buf,
+    '  *   Set NAME to name of subsystem with id ID.  Empty string when ID unknown.',
+    -1);
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+  string_vstring (buf, '  }'(0), -1);
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+
+  string_vstring (buf, '  case id of'(0), -1); {start the CASE statement}
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+
+  for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
+    if fw.modids[id].mod_p = nil then next; {nothing assigned to this ID ?}
+    if not fw.modids[id].used then next; {module assigned here not included in FW}
+
+    string_appends (buf, '    '(0));
+    string_append_intu (buf, id, 0);
+    string_appends (buf, ': string_vstring (name, '''(0));
+    string_copy (fw.modids[id].mod_p^.name_p^, tk);
+    string_upcase (tk);
+    string_append (buf, tk);
+    string_appends (buf, '''(0), -1);'(0));
+    wbuf (stat);                       {write the line}
+    if sys_error(stat) then goto abort;
+    end;
+
+  string_vstring (buf, '    otherwise'(0), -1); {start OTHERWISE clause}
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+  string_vstring (buf, '      name.len := 0;'(0), -1);
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+  string_vstring (buf, '    end;'(0), -1);
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+
+  file_close (conn);                   {close the file}
+{
 *   All done.  Normal exit point.
 }
   return;
