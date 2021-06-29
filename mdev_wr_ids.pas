@@ -7,13 +7,22 @@ define mdev_wr_ids_cs;
 *
 *   Subroutine MDEV_WR_IDS (FW, VERBOSE, STAT)
 *
-*   Write the <fwname>_IDS.MDEV file.  This file hard-codes the assigned MDEV
-*   module IDS for the firmare FW.
+*   Write the files that define the MDEV module IDs.  These are:
 *
-*   Write the <fwname>_IDS.H file.  This contains the same information, but
-*   readable by a C compiler.
+*     <fwname>_IDS.MDEV
+*
+*       Will be used as input for MDEV build programs.  Keeping this file around
+*       is how MDEV IDs are remembered once initially assigned.
+*
+*     <fwname>_IDS.H
+*
+*       C language include file.
+*
+*     <fwname>_IDS.INS.PAS
+*
+*       Pascal language include file.
 }
-procedure mdev_wr_ids (                {write MDEV file with assigned module IDs}
+procedure mdev_wr_ids (                {write files that define MDEV IDs, various languages}
   in      fw: mdev_fw_t;               {the target firmare}
   in      verbose: boolean;            {show more than just changes}
   out     stat: sys_err_t);            {completion status}
@@ -25,6 +34,7 @@ var
   fnam: string_leafname_t;             {file name}
   tk: string_var1024_t;                {scratch token}
   id: sys_int_machine_t;               {module ID within this firmware}
+  first: boolean;                      {processing the first ID}
 
 label
   abort;
@@ -96,6 +106,54 @@ begin
     end;
 
   file_close (conn);                   {close the file}
+{
+*   Write the fwname_IDS.INS.PAS file.
+}
+  string_copy (fw.name_p^, fnam);      {init file name with the firmware name}
+  string_appends (fnam, '_ids.ins.pas'(0)); {add fixed part of the file name}
+
+  file_open_write_text (               {open the file}
+    fnam, '',                          {file name and suffix}
+    conn,                              {returned connection to the file}
+    stat);
+  if sys_error(stat) then return;
+
+  string_vstring (buf, '{   Mdev module IDs for firmware '(0), -1); {init header comment}
+  mdev_fw_name_path (fw, tk);          {get firmware full pathname}
+  string_upcase (tk);
+  string_append (buf, tk);
+  string_appends (buf, '.'(0));
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+  string_vstring (buf, '}'(0), -1);
+  wbuf (stat);
+  if sys_error(stat) then goto abort;
+
+  first := true;                       {next ID will be the first in the list}
+  for id := mdev_modid_min_k to mdev_modid_max_k do begin {scan all possible IDs}
+    if fw.modids[id].mod_p = nil then next; {nothing assigned to this ID ?}
+    if not fw.modids[id].used then next; {module assigned here not included in FW}
+    if first then begin                {write header before first ID ?}
+      first := false;                  {next ID won't be the first anymore}
+      string_vstring (buf, 'const'(0), -1);
+      wbuf (stat);
+      if sys_error(stat) then goto abort;
+      end;
+    string_vstring (buf, '  mdevid_'(0), -1);
+    string_append (buf, fw.name_p^);
+    string_append1 (buf, '_');
+    string_append (buf, fw.modids[id].mod_p^.name_p^); {add module name}
+    string_appends (buf, '_k = '(0));
+    string_append_intu (buf, id, 0);   {add ID}
+    string_append1 (buf, ';');
+    wbuf (stat);                       {write the line}
+    if sys_error(stat) then goto abort;
+    end;
+
+  file_close (conn);                   {close the file}
+{
+*   All done.  Normal exit point.
+}
   return;
 {
 *   Error exit.  Jump here on error when a output file is open.  STAT must
