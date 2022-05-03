@@ -5,6 +5,10 @@ This document describes the overall modular devices (MDEV) mechanism.  See
 the following additional documentation files for details of the MDEV
 mechanism:
 
+  MDEVBUILD  -  MDEVBUILD program
+
+  MDEVSHOW  -  MDEVSHOW program
+
   MDEV_FILE  -  MDEV file format
 
 The MDEV mechanism ... [needs some detail here].

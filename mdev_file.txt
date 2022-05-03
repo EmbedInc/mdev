@@ -1,5 +1,5 @@
                              MDEV File Format
-                             22 February 2021
+                               3 May 2022
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -47,7 +47,7 @@ Syntax
     Individual parameters may be enclosed in quotes ("...") or
     apostrophies ('...').  This is required if the parameter is a text
     string that contains any blank, or starts or ends with a quote or
-    apostrohie.  The value of the parameter will be the string enclosed
+    apostrophie.  The value of the parameter will be the string enclosed
     by, but not including the outer quotes or apostrophies.  To indicate a
     single character of the type used to enclose the string, that
     character must be doubled in the body of the string.  For example, the
@@ -120,7 +120,7 @@ MDEV file set
 
   All MDEV files in a repository are read when that repository is
   referenced.  There is no need for a "master" MDEV file per repository,
-  for example, nor is there are means to avoid reading a particular MDEV
+  for example, nor is there a means to avoid reading a particular MDEV
   file if the directory it is in is referenced.
 
   It is intended that each MDEV module includes one MDEV file in the
@@ -132,11 +132,11 @@ Commands
 
   MDEVDIR dir
 
-    Specifies directory DIR as possibly containing MDEV files. Directories
-    may be referenced multiple times from multiple files. However, the
-    files in each directory are read only once.  There is no guarantee in
-    what order unread directories are read, or the files within
-    directories are read.
+    Specifies directory DIR as possibly containing MDEV files.
+    Directories may be referenced multiple times from multiple files.
+    However, the files in each directory are read only once.  There is no
+    guarantee in what order unread directories are read, or the files
+    within directories are read.
 
   FILE name
 
@@ -155,7 +155,7 @@ Commands
     Start a subordinate block for a particular named interface.  IFACE is
     the interface name, and is case-sensitive.
 
-    This command is used to provide optional details about a interface.
+    This command is used to provide optional details about an interface.
     It does not indicate that the interface is used or provided by any
     firmware or MDEV module.
 
@@ -270,7 +270,7 @@ Commands
       access deallocated resources.  For example, a routine into an MDEV
       to store a value in a dynamically allocated database may still be
       called after de-configuration.  However, that routine must then be
-      sure to no attempt to write to the database, since its memory no
+      sure to not attempt to write to the database, since its memory no
       longer exists.
 
       All MDEVs may be shut down by the system, but are not required to
