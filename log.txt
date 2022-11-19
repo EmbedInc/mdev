@@ -1,0 +1,52 @@
+From: Bob Ammerman <bob@ramsystems.biz>
+Sent: Thursday, 17 November, 2022 13:03
+To: Olin Lathrop; Olin Lathrop
+Subject:  Changes to XX_IDS.CS file
+
+private static readonly Tuple<string, int>[] _ids = new Tuple<string, int>[] {
+      new Tuple<string, int, bool>("project", CFG_project, true),
+      new Tuple<string, int, bool>("localdb", CFG_localdb, true),
+      new Tuple<string, int, bool>("fwdebug", CFG_fwdebug, true),
+      new Tuple<string, int, bool>("dbmath", CFG_dbmath, true),
+      new Tuple<string, int, bool>("jcan", CFG_jcan, true),
+…
+      new Tuple<string,int,bool>(“dixson_master”, CFG_dixson_master, false)
+…
+}
+
+--------------------------------------------------------------------------------
+
+From: Bob Ammerman <bob@ramsystems.biz>
+Sent: Saturday, 19 November, 2022 13:08
+To: Olin Lathrop; Olin Lathrop
+Subject:  MDEV build - change to *_ids.cs file
+
+Can you change the first few lines of the subject file to look like this:
+
+using System;
+using System.Linq;
+
+namespace Jowa.MdevIds {
+  public class IDs_mmcom : IDs_Base {
+    public const int CFG_uart_modbus = 1;
+
+The only difference is adding the keyword ‘public’ before the ‘class’
+keyword on the 5th line.
+
+I need this to be able to access the CFG_xxxx constants directly for a
+given firmware.
+
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
