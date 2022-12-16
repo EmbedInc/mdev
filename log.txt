@@ -38,6 +38,23 @@ given firmware.
 
 --------------------------------------------------------------------------------
 
+From: Bob Ammerman <bob@ramsystems.biz>
+Sent: Friday, December 16, 2022 12:57 PM
+To: Olin Lathrop
+Subject: RE: MDEV updates
+
+I will investigate. Meanwhile, I have noticed an error in the first email
+in that log file. The correct text is:
+
+private static readonly Tuple<string, int, bool>[] _ids = new Tuple<string, int, bool>[] {
+      new Tuple<string, int, bool>("project", CFG_project, true),
+      new Tuple<string, int, bool>("localdb", CFG_localdb, true),
+      new Tuple<string, int, bool>("fwdebug", CFG_fwdebug, true),
+      new Tuple<string, int, bool>("dbmath", CFG_dbmath, true),
+      new Tuple<string, int, bool>("jcan", CFG_jcan, true), …
+      new Tuple<string,int,bool>(“dixson_master”, CFG_dixson_master, false) … }
+
+The only addition is adding “, bool” in two places on the first line.
 
 --------------------------------------------------------------------------------
 
