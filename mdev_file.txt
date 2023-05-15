@@ -1,5 +1,5 @@
                              MDEV File Format
-                               3 May 2022
+                               15 May 2023
 
 This document describes the MDEV file format.  For an overview of the MDEV
 mechanism, see the MDEV documentation file.
@@ -109,22 +109,22 @@ MDEV file set
   MDEV files provide information for and about modular device modules.
   Source code for modules used in one build may be kept in various places.
   Modules specific to a particular firmware would usually be in the same
-  source repository as the firmware.  Modules for a class of related
-  devices may be in their own source repository.  Modules for generic
-  devices may be in yet other source repositories.
+  directory as the firmware source files.  Modules for a class of related
+  devices may be in their own directory.  Modules for generic devices may
+  be in yet other source directories.
 
   The MDEV configuration program starts by reading the MDEV files in the
-  source repository of the specific firmware being built.  Those MDEV
-  files may reference other repositories.  The MDEV files in those
-  repositories may reference more repositories, etc.
+  source directory of the specific firmware being built.  Those MDEV files
+  may reference other directories.  The MDEV files in those directories
+  may reference more directories, etc.
 
-  All MDEV files in a repository are read when that repository is
-  referenced.  There is no need for a "master" MDEV file per repository,
-  for example, nor is there a means to avoid reading a particular MDEV
-  file if the directory it is in is referenced.
+  All MDEV files in a directory are read if that directory is referenced.
+  There is no "master" MDEV file per directory, nor is there a means to
+  avoid reading a particular MDEV file if the directory it is in is
+  referenced.
 
   It is intended that each MDEV module includes one MDEV file in the
-  repository, along with its source code and other files.  This MDEV file
+  directory, along with its source code and other files.  This MDEV file
   will be automatically found and read by the MDEV configuration program.
 
 
@@ -152,7 +152,7 @@ Commands
 
   INTERFACE iface
 
-    Start a subordinate block for a particular named interface.  IFACE is
+    Starts a subordinate block for a particular named interface.  IFACE is
     the interface name, and is case-sensitive.
 
     This command is used to provide optional details about an interface.
@@ -183,7 +183,7 @@ Commands
 
   FIRMWARE [name ... name] name
 
-    Start a subordinate block that pertains only to the named firmware.
+    Starts a subordinate block that pertains only to the named firmware.
     The final NAME parameter is the actual firmware name.  This should
     match the FWNAME environment variable value when the firmware is
     built.
@@ -239,6 +239,8 @@ Commands
 
     DESC
       text ... text
+      ...
+      text ... text
 
       Provides descriptive text for the particular module.  See the
       INTERFACE > DESC command description earlier in this file for
@@ -292,7 +294,7 @@ Commands
         5 - Re-run the configuration routines for all MDEVs, just as was
             done when the system was first started.
 
-      If steps 1 and 2 are sufficient to shut down an MDEV, then no
+      If steps 2 and 3 are sufficient to shut down an MDEV, then no
       de-config entry point needs to be provided.
 
     USES iface [shared]
