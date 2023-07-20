@@ -16,7 +16,7 @@ procedure in_list (                    {make sure module is in list}
   val_param; internal;
 
 var
-  lent: string_var80_t;                {actual list entry text}
+  lent: string_treename_t;             {actual list entry text}
 
 begin
   lent.max := size_char(lent.str);     {init local var string}
@@ -105,10 +105,10 @@ procedure mdev_wr_mlist (              {edit MLIST file to include MDEV modules}
 
 var
   conn: file_conn_t;                   {connection to the file being written}
-  buf: string_var1024_t;               {one line input and output buffer}
+  buf: string_var8192_t;               {one line input and output buffer}
   fnam: string_treename_t;             {scratch file name}
   p: string_index_t;                   {BUF parse index}
-  tk: string_var32_t;                  {scratch token}
+  tk: string_treename_t;               {scratch token}
   mlist: string_list_t;                {list of modules in MLIST file}
   pick: sys_int_machine_t;             {number of token picked from list}
   id: sys_int_machine_t;               {assigned module ID}
