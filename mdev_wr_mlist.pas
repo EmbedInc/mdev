@@ -28,7 +28,9 @@ begin
   while true do begin                  {scan the list}
     string_list_pos_rel (list, 1);     {to next list entry}
     if list.str_p = nil then exit;     {hit end of list ?}
-    if string_equal (list.str_p^, lent) then return; {module already in list ?}
+    if string_equal (list.str_p^, lent) then begin {module already in list ?}
+      return;
+      end;
     end;                               {back to check next list entry}
 
   string_list_pos_last (list);         {to last line of list}
