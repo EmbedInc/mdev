@@ -264,7 +264,7 @@ begin
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
   hier_write_block_start (wr);
 
-  hier_write_str (wr, 'class IDs_');
+  hier_write_str (wr, 'public class IDs_');
   hier_write_vstr (wr, fw.name_p^);
   hier_write_str (wr, ' : IDs_Base {');
   hier_write_line (wr, stat); if sys_error(stat) then goto abort;
