@@ -9,12 +9,7 @@ call src_get %srcdir% %libname%2.ins.pas
 call src_get %srcdir% wbuf_local.ins.pas
 call src_get %srcdir% wlist_local.ins.pas
 
-call src_go %srcdir%
-call src_getfrom sys base.ins.pas
-call src_getfrom sys sys.ins.pas
-call src_getfrom util util.ins.pas
-call src_getfrom string string.ins.pas
-call src_getfrom file file.ins.pas
+call src_getbase
 call src_getfrom hier hier.ins.pas
 
 make_debug debug_switches.ins.pas
